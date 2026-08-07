@@ -1,0 +1,17 @@
+@keyframes cinematicFadeIn {
+  0% { opacity: 0; transform: scale(0.95); filter: blur(10px); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes textGlitch {
+  0% { text-shadow: 2px 0 var(--accent-color), -2px 0 #00ffff; }
+  25% { text-shadow: -2px 0 var(--accent-color), 2px 0 #00ffff; }
+  50% { text-shadow: 2px 0 var(--accent-color), -2px 0 #00ffff; }
+  100% { text-shadow: none; }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 10px var(--accent-glow); }
+  50% { box-shadow: 0 0 30px var(--accent-glow); }
+  100% { box-shadow: 0 0 10px var(--accent-glow); }
+}
