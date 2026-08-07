@@ -1,0 +1,23 @@
+:root {
+  --bg-color: #050505;
+  --text-main: #eaeaea;
+  --text-muted: #666666;
+  --accent-color: #ff2a5f; /* Неоново-розовый/красный для контраста */
+  --accent-glow: rgba(255, 42, 95, 0.4);
+  
+  --font-mono: 'Courier New', Courier, monospace;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  overflow: hidden; /* Запрещаем скролл на этапе интро */
+}
+
+* {
+  box-sizing: border-box;
+}
