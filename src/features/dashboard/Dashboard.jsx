@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
@@ -7,7 +6,7 @@ import styles from './Dashboard.module.css';
 // --- 3D КОМПОНЕНТ (Голографическое ядро) ---
 function HologramCore() {
   const meshRef = useRef();
-  
+
   // Вращение объекта каждый кадр
   useFrame((state, delta) => {
     meshRef.current.rotation.x += delta * 0.2;
@@ -43,7 +42,7 @@ const mockLogs = [
 ];
 
 // --- ОСНОВНОЙ КОМПОНЕНТ ---
-export default function Dashboard() {
+export default function Dashboard({ onStartQuest }) {
   const [timeInSim, setTimeInSim] = useState(0);
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [typedText, setTypedText] = useState("");
@@ -62,7 +61,7 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // 2. Исправленный эффект печатающей машинки
+  // 2. Эффект печатающей машинки
   useEffect(() => {
     setTypedText("");
     let charIndex = 0;
@@ -70,9 +69,8 @@ export default function Dashboard() {
 
     const typingInterval = setInterval(() => {
       charIndex++;
-      // slice гарантирует, что мы берем точный кусок строки от 0 до текущего индекса
       setTypedText(fullText.slice(0, charIndex));
-      
+
       if (charIndex >= fullText.length) {
         clearInterval(typingInterval);
       }
@@ -88,13 +86,13 @@ export default function Dashboard() {
     };
   }, [phraseIndex]);
 
-  // 3. Генератор системных логов (добавляет новую строку каждые 3-6 секунд)
+  // 3. Генератор системных логов
   useEffect(() => {
     const logInterval = setInterval(() => {
       const randomLog = mockLogs[Math.floor(Math.random() * mockLogs.length)];
       setLogs(prev => {
         const newLogs = [...prev, `[${new Date().toLocaleTimeString()}] ${randomLog}`];
-        return newLogs.slice(-6); // Храним только последние 6 строк
+        return newLogs.slice(-6);
       });
     }, 4500);
     return () => clearInterval(logInterval);
@@ -108,7 +106,6 @@ export default function Dashboard() {
 
   return (
     <div className={styles.dashboardContainer}>
-      {/* Фоновая бегущая строка */}
       <div className={styles.topTicker}>
         <div className={styles.tickerTrack}>
           SYS.LOG: / / / АНАЛИЗ ЗАВЕРШЕН / / / КРИТИЧЕСКИХ ОШИБОК НЕТ / / / МОДУЛЬ СВЯЗИ АКТИВЕН / / / СИМУЛЯЦИЯ РАБОТАЕТ В ШТАТНОМ РЕЖИМЕ / / /
@@ -116,14 +113,12 @@ export default function Dashboard() {
       </div>
 
       <div className={styles.bentoGrid}>
-        
-        {/* Карточка 1: Профиль с 3D */}
+        {/* Карточка 1: Профиль */}
         <div className={`${styles.bentoCard} ${styles.profile}`}>
           <div className={styles.cardHeader}>
             <div className={styles.statusDot}></div>
             Идентификация
           </div>
-          {/* Контейнер для 3D */}
           <div className={styles.canvasContainer}>
             <Canvas camera={{ position: [0, 0, 3] }}>
               <ambientLight intensity={0.5} />
@@ -139,14 +134,21 @@ export default function Dashboard() {
         <div className={`${styles.bentoCard} ${styles.quests}`}>
           <div className={styles.cardHeader}>Доступные модули</div>
           <div className={styles.questList}>
+            {/* АКТИВНЫЙ КВЕСТ */}
             <div className={styles.questItemActive}>
               <div className={styles.questInfo}>
-                <h3>Протокол: Разминирование</h3>
-                <p>Требуется ручное вмешательство в ядро системы.</p>
+                <h3>Протокол: ALBARS_SHIELD</h3>
+                <p>Критическая угроза ядра. Требуется вмешательство.</p>
               </div>
-              <button className={styles.startBtn}>Инициировать</button>
+              <button 
+                className={styles.startBtn}
+                onClick={() => onStartQuest('core_defense')}
+              >
+                Инициировать
+              </button>
             </div>
-            
+
+            {/* ЗАБЛОКИРОВАННЫЙ КВЕСТ */}
             <div className={styles.questItemLocked}>
               <div className={styles.questInfo}>
                 <h3>Протокол: Монолитное основание</h3>
@@ -168,17 +170,17 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Карточка 4: Статистика (с осциллографом) */}
+        {/* Карточка 4: Статистика */}
         <div className={`${styles.bentoCard} ${styles.stats}`}>
           <div className={styles.cardHeader}>Метрики сеанса</div>
           <div className={styles.metricBlock}>
             <div className={styles.metricValue}>{formatTime(timeInSim)}</div>
             <div className={styles.metricLabel}>Продолжительность (мин:сек)</div>
           </div>
-          <div className={styles.sineWave}></div> {/* CSS Кардиограмма */}
+          <div className={styles.sineWave}></div>
         </div>
 
-        {/* Карточка 5: Системные Логи */}
+        {/* Карточка 5: Логи */}
         <div className={`${styles.bentoCard} ${styles.logsWindow}`}>
           <div className={styles.cardHeader}>Live System Log</div>
           <div className={styles.logContent}>
@@ -199,7 +201,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Карточка 7: Терминал фраз */}
+        {/* Карточка 7: Терминал */}
         <div className={`${styles.bentoCard} ${styles.terminal}`}>
           <div className={styles.cardHeader}>Входящий канал связи</div>
           <div className={styles.terminalWindow}>
@@ -208,7 +210,6 @@ export default function Dashboard() {
             <span className={styles.cursor}>_</span>
           </div>
         </div>
-
       </div>
     </div>
   );
