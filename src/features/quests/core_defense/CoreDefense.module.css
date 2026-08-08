@@ -1,0 +1,102 @@
+/* Общий контейнер консоли */
+.terminalContainer {
+  width: 100vw;
+  height: 100vh;
+  background-color: #050505;
+  color: #00ff41; /* Классический зеленый цвет терминала */
+  font-family: 'Courier New', Courier, monospace;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Имитация старого экрана (сканлайны) */
+.crtOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Окно с текстом */
+.terminalContent {
+  width: 80%;
+  max-width: 1000px;
+  height: 80%;
+  padding: 30px;
+  border: 1px solid #113311;
+  border-radius: 8px;
+  background: rgba(0, 10, 0, 0.6);
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.1) inset;
+  overflow-y: auto;
+  z-index: 5;
+}
+
+/* Текст печатной машинки */
+.typewriterText {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+  margin: 0;
+}
+
+/* Мигающий курсор */
+.cursor {
+  display: inline-block;
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* --- ВРЕМЕННЫЕ СТИЛИ ДЛЯ ЗАГЛУШКИ ВЗЛОМА --- */
+.hackingPlaceholder {
+  width: 100vw;
+  height: 100vh;
+  background-color: #0a0a0a;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.warningTitle {
+  color: #ff2a2a;
+  text-shadow: 0 0 10px rgba(255, 42, 42, 0.7);
+  letter-spacing: 2px;
+}
+
+.skipButton {
+  margin-top: 30px;
+  padding: 15px 30px;
+  background: transparent;
+  color: #0f0;
+  border: 1px solid #0f0;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.skipButton:hover {
+  background: rgba(0, 255, 0, 0.1);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+}
