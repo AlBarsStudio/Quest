@@ -1,7 +1,28 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
 import styles from './Dashboard.module.css';
 
-// Массив наших научно-романтичных фраз
+// --- 3D КОМПОНЕНТ (Голографическое ядро) ---
+function HologramCore() {
+  const meshRef = useRef();
+  
+  // Вращение объекта каждый кадр
+  useFrame((state, delta) => {
+    meshRef.current.rotation.x += delta * 0.2;
+    meshRef.current.rotation.y += delta * 0.3;
+  });
+
+  return (
+    <mesh ref={meshRef}>
+      <icosahedronGeometry args={[1.5, 1]} />
+      <meshBasicMaterial color="#4ade80" wireframe={true} transparent opacity={0.6} />
+    </mesh>
+  );
+}
+
+// --- БАЗЫ ДАННЫХ ДЛЯ ТЕКСТОВ ---
 const terminalPhrases = [
   "Сканирование нейронных связей... Успешно.",
   "Системное уведомление: Уровень очарования превышает серверные лимиты.",
@@ -11,12 +32,24 @@ const terminalPhrases = [
   "Ошибка протокола безопасности. Причина: слишком теплая улыбка.",
 ];
 
+const mockLogs = [
+  "SYS: Инициализация протокола 'Романтика'...",
+  "WARN: Перегрузка эмоциональных контуров.",
+  "NET: Пинг до ближайшей звезды: 42мс.",
+  "SYS: Модуль укладки стяжки деактивирован.",
+  "SEC: Несанкционированный доступ к базе памяти.",
+  "SCAN: Поиск аномалий... Чисто.",
+  "SYS: Фоновое обновление чувств завершено."
+];
+
+// --- ОСНОВНОЙ КОМПОНЕНТ ---
 export default function Dashboard() {
   const [timeInSim, setTimeInSim] = useState(0);
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [typedText, setTypedText] = useState("");
+  const [logs, setLogs] = useState(["SYS: Подключение к симуляции установлено..."]);
 
-  // Логика счетчика времени
+  // 1. Логика счетчика времени
   useEffect(() => {
     let startTime = localStorage.getItem('simStartTime');
     if (!startTime) {
@@ -29,22 +62,22 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Эффект печатающей машинки для терминала
+  // 2. Исправленный эффект печатающей машинки
   useEffect(() => {
-    const fullText = terminalPhrases[phraseIndex];
-    setTypedText(""); // Очищаем перед новой фразой
+    setTypedText("");
     let charIndex = 0;
+    const fullText = terminalPhrases[phraseIndex];
 
     const typingInterval = setInterval(() => {
-      if (charIndex < fullText.length) {
-        setTypedText((prev) => prev + fullText.charAt(charIndex));
-        charIndex++;
-      } else {
+      charIndex++;
+      // slice гарантирует, что мы берем точный кусок строки от 0 до текущего индекса
+      setTypedText(fullText.slice(0, charIndex));
+      
+      if (charIndex >= fullText.length) {
         clearInterval(typingInterval);
       }
-    }, 50); // Скорость печати (50мс на букву)
+    }, 50);
 
-    // Меняем фразу каждые 8 секунд
     const phraseChangeTimer = setTimeout(() => {
       setPhraseIndex((prev) => (prev + 1) % terminalPhrases.length);
     }, 8000);
@@ -55,6 +88,18 @@ export default function Dashboard() {
     };
   }, [phraseIndex]);
 
+  // 3. Генератор системных логов (добавляет новую строку каждые 3-6 секунд)
+  useEffect(() => {
+    const logInterval = setInterval(() => {
+      const randomLog = mockLogs[Math.floor(Math.random() * mockLogs.length)];
+      setLogs(prev => {
+        const newLogs = [...prev, `[${new Date().toLocaleTimeString()}] ${randomLog}`];
+        return newLogs.slice(-6); // Храним только последние 6 строк
+      });
+    }, 4500);
+    return () => clearInterval(logInterval);
+  }, []);
+
   const formatTime = (totalSeconds) => {
     const min = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
     const sec = (totalSeconds % 60).toString().padStart(2, '0');
@@ -63,26 +108,37 @@ export default function Dashboard() {
 
   return (
     <div className={styles.dashboardContainer}>
+      {/* Фоновая бегущая строка */}
+      <div className={styles.topTicker}>
+        <div className={styles.tickerTrack}>
+          SYS.LOG: / / / АНАЛИЗ ЗАВЕРШЕН / / / КРИТИЧЕСКИХ ОШИБОК НЕТ / / / МОДУЛЬ СВЯЗИ АКТИВЕН / / / СИМУЛЯЦИЯ РАБОТАЕТ В ШТАТНОМ РЕЖИМЕ / / /
+        </div>
+      </div>
+
       <div className={styles.bentoGrid}>
         
-        {/* Карточка 1: Профиль */}
+        {/* Карточка 1: Профиль с 3D */}
         <div className={`${styles.bentoCard} ${styles.profile}`}>
           <div className={styles.cardHeader}>
             <div className={styles.statusDot}></div>
             Идентификация
           </div>
+          {/* Контейнер для 3D */}
+          <div className={styles.canvasContainer}>
+            <Canvas camera={{ position: [0, 0, 3] }}>
+              <ambientLight intensity={0.5} />
+              <HologramCore />
+              <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1} />
+            </Canvas>
+          </div>
           <h2 className={styles.profileName}>Анастасия</h2>
           <div className={styles.sysId}>ID: SYS-2004-04-20</div>
-          <div className={styles.statusText}>
-            Статус: Синхронизация с реальностью 99.8%
-          </div>
         </div>
 
         {/* Карточка 2: Модуль Квестов */}
         <div className={`${styles.bentoCard} ${styles.quests}`}>
           <div className={styles.cardHeader}>Доступные модули</div>
           <div className={styles.questList}>
-            {/* Активный квест */}
             <div className={styles.questItemActive}>
               <div className={styles.questInfo}>
                 <h3>Протокол: Разминирование</h3>
@@ -91,41 +147,50 @@ export default function Dashboard() {
               <button className={styles.startBtn}>Инициировать</button>
             </div>
             
-            {/* Заблокированные квесты (стяжка и мебель в sci-fi обертке) */}
             <div className={styles.questItemLocked}>
               <div className={styles.questInfo}>
                 <h3>Протокол: Монолитное основание</h3>
-                <p>Модуль заблокирован. Требуется допуск 2 уровня.</p>
-              </div>
-              <div className={styles.lockIcon}>🔒</div>
-            </div>
-
-            <div className={styles.questItemLocked}>
-              <div className={styles.questInfo}>
-                <h3>Протокол: Сборка конструкта</h3>
-                <p>Модуль заблокирован. Требуется допуск 3 уровня.</p>
+                <p>Требуется допуск 2 уровня.</p>
               </div>
               <div className={styles.lockIcon}>🔒</div>
             </div>
           </div>
         </div>
 
-        {/* Карточка 3: Статистика */}
+        {/* Карточка 3: Радар */}
+        <div className={`${styles.bentoCard} ${styles.radarBox}`}>
+          <div className={styles.cardHeader}>Пространственный скан</div>
+          <div className={styles.radarContainer}>
+            <div className={styles.radarCircle}>
+              <div className={styles.radarSweep}></div>
+              <div className={styles.radarDot}></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Карточка 4: Статистика (с осциллографом) */}
         <div className={`${styles.bentoCard} ${styles.stats}`}>
           <div className={styles.cardHeader}>Метрики сеанса</div>
           <div className={styles.metricBlock}>
             <div className={styles.metricValue}>{formatTime(timeInSim)}</div>
-            <div className={styles.metricLabel}>Продолжительность симуляции</div>
+            <div className={styles.metricLabel}>Продолжительность (мин:сек)</div>
           </div>
-          <div className={styles.metricBlock}>
-            <div className={styles.metricValue}>12 048</div>
-            <div className={styles.metricLabel}>Проанализировано вероятностей</div>
+          <div className={styles.sineWave}></div> {/* CSS Кардиограмма */}
+        </div>
+
+        {/* Карточка 5: Системные Логи */}
+        <div className={`${styles.bentoCard} ${styles.logsWindow}`}>
+          <div className={styles.cardHeader}>Live System Log</div>
+          <div className={styles.logContent}>
+            {logs.map((log, i) => (
+              <div key={i} className={styles.logLine}>{log}</div>
+            ))}
           </div>
         </div>
 
-        {/* Карточка 4: Инвентарь */}
+        {/* Карточка 6: Инвентарь */}
         <div className={`${styles.bentoCard} ${styles.inventory}`}>
-          <div className={styles.cardHeader}>База артефактов</div>
+          <div className={styles.cardHeader}>База лута</div>
           <div className={styles.inventoryGrid}>
             <div className={styles.inventorySlot}></div>
             <div className={styles.inventorySlot}></div>
@@ -134,7 +199,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Карточка 5: Терминал фраз */}
+        {/* Карточка 7: Терминал фраз */}
         <div className={`${styles.bentoCard} ${styles.terminal}`}>
           <div className={styles.cardHeader}>Входящий канал связи</div>
           <div className={styles.terminalWindow}>
