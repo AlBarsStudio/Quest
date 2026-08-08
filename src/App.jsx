@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Intro from './features/intro/Intro';
-import Dashboard from './features/dashboard/Dashboard';
 
-export default function App() {
-  // Состояние: прошли мы интро или нет
-  const [isIntroFinished, setIsIntroFinished] = useState(false);
+function App() {
+  const [showIntro, setShowIntro] = useState(true);
 
   return (
     <>
-      {!isIntroFinished ? (
-        <Intro onComplete={() => setIsIntroFinished(true)} />
+      {showIntro ? (
+        <Intro onComplete={() => setShowIntro(false)} />
       ) : (
-        <Dashboard />
+        <div style={{ color: 'white', padding: '50px', textAlign: 'center', fontFamily: 'sans-serif' }}>
+          <h1>Здесь будет основной Дашборд</h1>
+          <p>С графиками, ачивками и запуском квестов.</p>
+        </div>
       )}
     </>
   );
 }
+
+export default App;
