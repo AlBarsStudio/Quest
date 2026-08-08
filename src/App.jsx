@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Intro from './features/intro/Intro';
+import Dashboard from './features/dashboard/Dashboard';
 
 function App() {
   const [showIntro, setShowIntro] = useState(true);
@@ -9,10 +10,7 @@ function App() {
       {showIntro ? (
         <Intro onComplete={() => setShowIntro(false)} />
       ) : (
-        <div style={{ color: 'white', padding: '50px', textAlign: 'center', fontFamily: 'sans-serif' }}>
-          <h1>Здесь будет основной Дашборд</h1>
-          <p>С графиками, ачивками и запуском квестов.</p>
-        </div>
+        <Dashboard />
       )}
     </>
   );
