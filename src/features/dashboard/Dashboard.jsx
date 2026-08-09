@@ -148,16 +148,20 @@ export default function Dashboard({ onStartQuest }) {
               </button>
             </div>
 
-            {/* ЗАБЛОКИРОВАННЫЙ КВЕСТ */}
-            <div className={styles.questItemLocked}>
-              <div className={styles.questInfo}>
-                <h3>Протокол: Монолитное основание</h3>
-                <p>Требуется допуск 2 уровня.</p>
-              </div>
-              <div className={styles.lockIcon}>🔒</div>
+          {/* АКТИВНЫЙ КВЕСТ HeartOS */}
+          <div className={styles.questItemActive}>
+            <div className={styles.questInfo}>
+              <h3>HeartOS // Верификация</h3>
+               <p>Доступ к Профилю ограничен. Требуется подтверждение личности.</p>
             </div>
+            <button 
+               className={styles.startBtn}
+               // Передаем id нашего нового квеста
+              onClick={() => onStartQuest('heart_os')}
+            >
+               Пройти
+            </button>
           </div>
-        </div>
 
         {/* Карточка 3: Радар */}
         <div className={`${styles.bentoCard} ${styles.radarBox}`}>
