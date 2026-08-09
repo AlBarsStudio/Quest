@@ -10,10 +10,14 @@
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
-  transition: background-color 0.1s;
+  transition: transform 0.5s ease-in-out, background-color 0.1s;
 }
 
-/* Эффект ошибки (моргание красным) */
+/* Переворот на 180 градусов */
+.flipped {
+  transform: rotate(180deg);
+}
+
 .errorFlash {
   background-color: #300000 !important;
   box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.5);
@@ -41,29 +45,41 @@
   50% { opacity: 0.5; }
 }
 
+.timerContainer {
+  background: rgba(0, 255, 0, 0.1);
+  padding: 10px 30px;
+  border-radius: 8px;
+  border: 1px solid #0f0;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+}
+
 .timer {
   color: #0f0;
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: bold;
+  text-shadow: 0 0 10px #0f0;
 }
 
 .timerDanger {
   color: #ff2a2a;
+  text-shadow: 0 0 20px #ff0000;
   animation: pulseWarning 1s infinite;
+  border-color: #ff2a2a;
 }
 
 .errorCount {
   color: #ff2a2a;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
-/* Контейнер с текстом */
 .textContainer {
   flex-grow: 1;
   font-size: 2.2rem;
   line-height: 1.8;
   text-align: justify;
-  text-transform: uppercase; /* Для большей хакерской атмосферы */
-  user-select: none; /* Запрет выделения мышкой */
+  text-transform: uppercase;
+  user-select: none;
 }
 
 .word {
@@ -71,24 +87,31 @@
   display: inline-block;
 }
 
-/* Состояния слов */
 .wordCompleted {
-  color: #0f0; /* Зеленый - введено правильно */
-  text-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+  color: #0f0;
 }
 
 .wordCurrent {
-  color: #fff;
-  border-bottom: 2px solid #0f0; /* Подчеркивание текущего слова */
+  border-bottom: 2px solid #0f0;
 }
 
 .wordPending {
-  color: #444; /* Тусклый серый для неначатых слов */
   letter-spacing: 2px;
 }
 
+/* Стили для отдельных букв внутри слов */
+.charPending {
+  color: rgba(255, 255, 255, 0.2); /* Буквы видно, но они блеклые */
+}
+
 .charTyped {
-  color: #0ff; /* Циан для введенных букв в текущем слове */
+  color: #0ff; 
+  text-shadow: 0 0 10px #0ff;
+}
+
+.charCompleted {
+  color: #0f0;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
 }
 
 .instructions {
@@ -100,7 +123,28 @@
   padding-top: 20px;
 }
 
-/* Глитч-эффект для контейнера */
+/* Отвлекающие милые уведомления */
+.cuteNotification {
+  position: absolute;
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  color: #333;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.2rem;
+  box-shadow: 0 5px 15px rgba(255, 154, 158, 0.6);
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+  z-index: 50;
+  text-transform: none;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .glitchEffect {
   animation: glitch-anim 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
 }
