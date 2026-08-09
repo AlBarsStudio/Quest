@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './Intro.module.css';
-// import introMusic from '../../assets/intro-theme.mp3'; // Раскомментируй, когда добавишь файл музыки
+// import introMusic from '../../assets/intro-theme.mp3'; 
 
 const scenes = [
   { text: "AlBars Studio представляет", styleClass: styles.fadeScale, duration: 4000 },
@@ -19,19 +19,17 @@ export default function Intro({ onComplete }) {
 
   const handleStart = () => {
     setIsStarted(true);
-    // if (audioRef.current) audioRef.current.play(); // Раскомментируй для музыки
+    // if (audioRef.current) audioRef.current.play();
   };
 
   useEffect(() => {
-    // Если не началось или сцены кончились - ничего не делаем
     if (!isStarted) return;
     
     if (currentScene >= scenes.length) {
-      onComplete(); // Вызываем завершение интро
+      onComplete(); 
       return;
     }
 
-    // Таймер переключения сцен
     const timer = setTimeout(() => {
       setCurrentScene(prev => prev + 1);
     }, scenes[currentScene].duration);
@@ -43,6 +41,26 @@ export default function Intro({ onComplete }) {
     <div className={styles.introContainer}>
       {/* <audio ref={audioRef} src={introMusic} preload="auto" /> */}
       
+      {/* Временная кнопка пропуска */}
+      <button 
+        onClick={onComplete}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          color: '#fff',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          padding: '8px 16px',
+          cursor: 'pointer',
+          borderRadius: '4px',
+          zIndex: 100,
+          fontFamily: 'monospace'
+        }}
+      >
+        Пропустить интро ⏭
+      </button>
+
       {!isStarted ? (
         <button className={styles.startButton} onClick={handleStart}>
           Запустить симуляцию
