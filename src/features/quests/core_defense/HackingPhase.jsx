@@ -38,7 +38,25 @@ export default function HackingPhase({ onComplete }) {
     setWords(cleanWords);
   }, [originalText]);
 
-  // Таймер и переворот экрана
+  const handleGameOver = useCallback((success) => {
+    let score = 1000;
+    score -= (errors * 5);
+    const timeTaken = 180 - timeLeft;
+    if (timeTaken > 120) {
+      score -= ((timeTaken - 120) * 2); 
+    }
+    score = Math.max(0, Math.min(1000, score));
+    onComplete({ success, score, timeTaken, errors });
+  }, [errors, timeLeft, onComplete]);
+
+  // Глобальная функция для пропуска через консоль F12
+  useEffect(() => {
+    window.skipQuest = () => handleGameOver(true);
+    return () => {
+      delete window.skipQuest;
+    };
+  }, [handleGameOver]);
+
   useEffect(() => {
     if (timeLeft <= 0) {
       handleGameOver(false);
@@ -46,16 +64,14 @@ export default function HackingPhase({ onComplete }) {
     }
     const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
     
-    // Переворот на 60 секундах
     if (timeLeft === 60) {
       setIsFlipped(true);
-      setTimeout(() => setIsFlipped(false), 5000); // Возврат через 5 секунд
+      setTimeout(() => setIsFlipped(false), 5000); 
     }
     
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, handleGameOver]);
 
-  // Всплывающие уведомления
   useEffect(() => {
     const notifTimer = setInterval(() => {
       const newNotif = {
@@ -68,7 +84,7 @@ export default function HackingPhase({ onComplete }) {
       setTimeout(() => {
         setNotifications(prev => prev.filter(n => n.id !== newNotif.id));
       }, 3000);
-    }, 6000); // Каждые 6 секунд
+    }, 6000);
     return () => clearInterval(notifTimer);
   }, []);
 
@@ -79,17 +95,6 @@ export default function HackingPhase({ onComplete }) {
     }, Math.random() * 5000 + 3000);
     return () => clearInterval(glitchTimer);
   }, []);
-
-  const handleGameOver = useCallback((success) => {
-    let score = 1000;
-    score -= (errors * 5);
-    const timeTaken = 180 - timeLeft;
-    if (timeTaken > 120) {
-      score -= ((timeTaken - 120) * 2); 
-    }
-    score = Math.max(0, Math.min(1000, score));
-    onComplete({ success, score, timeTaken, errors });
-  }, [errors, timeLeft, onComplete]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -144,9 +149,8 @@ export default function HackingPhase({ onComplete }) {
       return (
         <span key={wIdx} className={`${styles.word} ${wordStatus}`}>
           {word.split('').map((char, cIdx) => {
-            // Текст теперь ВИДЕН (показываем char всегда), но стиль меняется
             let displayChar = char; 
-            let charStatus = styles.charPending; // Полупрозрачный по умолчанию
+            let charStatus = styles.charPending; 
 
             if (wIdx < currentWordIndex) {
               charStatus = styles.charCompleted;
@@ -168,6 +172,26 @@ export default function HackingPhase({ onComplete }) {
   return (
     <div id="hack-container" className={`${styles.container} ${isGlitching ? styles.glitchEffect : ''} ${isFlipped ? styles.flipped : ''}`}>
       
+      <button 
+        onClick={() => handleGameOver(true)}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          color: '#fff',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          padding: '8px 16px',
+          cursor: 'pointer',
+          borderRadius: '4px',
+          zIndex: 9999,
+          fontFamily: 'monospace',
+          pointerEvents: 'auto'
+        }}
+      >
+        Пропустить квест ⏭
+      </button>
+
       <header className={styles.header}>
         <div className={styles.warning}>[ ВТОРЖЕНИЕ: ПРОТОКОЛ ПЕРЕКАЛИБРОВКИ ]</div>
         <div className={styles.timerContainer}>
@@ -191,25 +215,6 @@ export default function HackingPhase({ onComplete }) {
       {notifications.map(n => (
         <div key={n.id} className={styles.cuteNotification} style={{ top: n.top, left: n.left }}>
           {n.text}
-      {/* Временная кнопка пропуска квеста */}
-      <button 
-        onClick={() => handleGameOver(true)}
-        style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          background: 'rgba(255, 255, 255, 0.1)',
-          color: '#fff',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          padding: '8px 16px',
-          cursor: 'pointer',
-          borderRadius: '4px',
-          zIndex: 100,
-          fontFamily: 'monospace'
-        }}
-      >
-        Пропустить квест ⏭
-      </button>
         </div>
       ))}
     </div>
