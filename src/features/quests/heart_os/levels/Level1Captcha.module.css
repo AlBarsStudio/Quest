@@ -1,0 +1,117 @@
+.container {
+  max-width: 650px;
+  width: 90%;
+  padding: 30px;
+  border: 1px solid var(--text-muted);
+  background: rgba(5, 5, 5, 0.9);
+  position: relative;
+  min-height: 250px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.bureaucracyText {
+  font-size: 1rem;
+  margin-bottom: 30px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.captchaWrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #f0f0f0;
+  padding: 15px 25px;
+  border-radius: 4px;
+  width: fit-content;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+}
+
+.captchaLabel {
+  color: #1a1a1a;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.boxesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  width: 28px;
+  height: 28px;
+  justify-content: center;
+  align-items: center;
+}
+
+.checkbox {
+  border: 2px solid #a0a0a0;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.1s ease;
+}
+
+.checkbox:hover {
+  border-color: #555;
+}
+
+/* Фрактальное уменьшение квадратов */
+.boxesContainer[data-clicks="0"] .checkbox {
+  width: 28px;
+  height: 28px;
+}
+
+.boxesContainer[data-clicks="1"] .checkbox {
+  width: 12px;
+  height: 12px;
+  border-width: 1px;
+}
+
+.boxesContainer[data-clicks="2"] .checkbox {
+  width: 10px;
+  height: 10px;
+  border-width: 1px;
+}
+
+.boxesContainer[data-clicks="3"] .checkbox {
+  width: 5px;
+  height: 5px;
+  border-width: 1px;
+  border-radius: 0;
+}
+
+.secretText {
+  position: absolute;
+  bottom: 10px;
+  right: 15px;
+  font-size: 0.7rem;
+  color: #1a1a1a; /* Почти сливается с темным фоном */
+  cursor: pointer;
+  transition: color 0.3s ease;
+  font-family: var(--font-sans);
+}
+
+.secretText:hover {
+  color: var(--accent-color);
+}
+
+.successScreen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.hugeCheckmark {
+  font-size: 12rem;
+  color: var(--accent-color);
+  animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
