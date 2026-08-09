@@ -134,7 +134,7 @@ export default function Dashboard({ onStartQuest }) {
         <div className={`${styles.bentoCard} ${styles.quests}`}>
           <div className={styles.cardHeader}>Доступные модули</div>
           <div className={styles.questList}>
-            {/* АКТИВНЫЙ КВЕСТ */}
+            {/* АКТИВНЫЙ КВЕСТ 1 */}
             <div className={styles.questItemActive}>
               <div className={styles.questInfo}>
                 <h3>Протокол: ALBARS_SHIELD</h3>
@@ -148,20 +148,21 @@ export default function Dashboard({ onStartQuest }) {
               </button>
             </div>
 
-          {/* АКТИВНЫЙ КВЕСТ HeartOS */}
-          <div className={styles.questItemActive}>
-            <div className={styles.questInfo}>
-              <h3>HeartOS // Верификация</h3>
-               <p>Доступ к Профилю ограничен. Требуется подтверждение личности.</p>
+            {/* АКТИВНЫЙ КВЕСТ HeartOS (Новый квест) */}
+            <div className={styles.questItemActive}>
+              <div className={styles.questInfo}>
+                <h3>HeartOS // Верификация</h3>
+                <p>Доступ к Профилю ограничен. Требуется подтверждение личности.</p>
+              </div>
+              <button 
+                className={styles.startBtn}
+                onClick={() => onStartQuest('heart_os')}
+              >
+                Пройти
+              </button>
             </div>
-            <button 
-               className={styles.startBtn}
-               // Передаем id нашего нового квеста
-              onClick={() => onStartQuest('heart_os')}
-            >
-               Пройти
-            </button>
           </div>
+        </div>
 
         {/* Карточка 3: Радар */}
         <div className={`${styles.bentoCard} ${styles.radarBox}`}>
