@@ -191,6 +191,25 @@ export default function HackingPhase({ onComplete }) {
       {notifications.map(n => (
         <div key={n.id} className={styles.cuteNotification} style={{ top: n.top, left: n.left }}>
           {n.text}
+      {/* Временная кнопка пропуска квеста */}
+      <button 
+        onClick={() => handleGameOver(true)}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          color: '#fff',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          padding: '8px 16px',
+          cursor: 'pointer',
+          borderRadius: '4px',
+          zIndex: 100,
+          fontFamily: 'monospace'
+        }}
+      >
+        Пропустить квест ⏭
+      </button>
         </div>
       ))}
     </div>
