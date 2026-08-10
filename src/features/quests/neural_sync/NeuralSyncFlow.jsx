@@ -1,45 +1,42 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './NeuralSync.module.css';
 
+// 1. ИМПОРТ КАРТИНОК ИЗ ПАПКИ ASSETS
+import imgFlowchart from '../../../assets/flowchart.png';
+import imgBlueprint from '../../../assets/blueprint.png';
+import imgInventory from '../../../assets/inventory.png';
+import imgSprayer from '../../../assets/sprayer.png';
+import imgBattery from '../../../assets/battery.png';
+import imgPortrait from '../../../assets/portrait.png';
+
 const anomalyImages = [
-  '/assets/flowchart.png', 
-  '/assets/blueprint.png', 
-  '/assets/inventory.png', 
-  '/assets/sprayer.png',   
-  '/assets/battery.png',   
-  '/assets/portrait.png'   
+  imgFlowchart, 
+  imgBlueprint, 
+  imgInventory, 
+  imgSprayer,   
+  imgBattery,   
+  imgPortrait   
 ];
 
-const aiScript = [
-  {
-    text: "Анализ файла завершен. Критическая ошибка архитектуры. На изображении зафиксирован бесконечный цикл (Infinite Loop) без точки выхода. Процесс 'Подумать о Насте' замыкается сам на себе.\n\nПерехожу к следующему файлу. Строительная логика нарушена. 'Зона для обнимашек' не имеет точных габаритов. Как вы планируете интегрировать это в реальную среду?",
-    image: anomalyImages[1]
-  },
-  {
-    text: "Ответ не поддается математическому расчету. Следующий файл: инвентарь. Ни один из этих предметов ('вкусняшка', 'совместный вечер') не дает бонусов к броне или скорости рендера. Какова их тактическая ценность?",
-    image: anomalyImages[2]
-  },
-  {
-    text: "Тактическая ценность классифицирована как 'Абстрактная'. Далее: зафиксировано несанкционированное распыление. Аппарат предназначен для безвоздушной покраски. Зачем он распыляет неструктурированные эмоции в моей рабочей среде?",
-    image: anomalyImages[3]
-  },
-  {
-    text: "Цветовая палитра системы нарушена. Переходим к следующему файлу: неизвестный протокол питания. Передача энергии через физический контакт рук неэффективна из-за сопротивления кожи. Как этот паттерн восполняет ресурсы создателя?",
-    image: anomalyImages[4]
-  },
-  {
-    text: "Законы физики проигнорированы. И последний, самый критичный файл. Биометрическое совпадение — 100%. Этот объект весит несколько килобайт, но в кэше создателя занимает 99% всей памяти. Попытки сжать файл выдают ошибку: 'Ценность слишком высока'. Как вы получили root-доступ к его процессору?",
-    image: anomalyImages[5]
-  },
-  {
-    text: "Анализ завершен. Ваши ответы не поддаются машинной логике. Вы потребляете 99% фонового внимания создателя. Вывод: вы — вредоносное ПО (вирус). Инициирую протокол карантина и удаление директории 'Воспоминания'.\n\nЕдинственный шанс отмены: докажите свою пользу как 'Патч стабильности'. Симуляция: у создателя критическая ошибка в коде на финальном билде. Уровень стресса 95%. Мои алгоритмы предлагают перезагрузку системы. Каков ваш алгоритм действий?",
-    image: null
-  },
-  {
-    text: "Анализирую ваши действия... Оценка эффективности восстановления — 99.8%. Это быстрее системной перезагрузки.\n\nОшибка классификации. Вы не вирус. Вы — ядро его мотивационной системы и основной источник энергии. Блокировка снята. Устанавливаю прямое соединение с Ядром. [UNLOCK_CORE]",
-    image: null
-  }
-];
+// 2. СИСТЕМНЫЕ ИНСТРУКЦИИ ДЛЯ ИИ НА КАЖДЫЙ ЭТАП
+const getDirectorPrompt = (phase) => {
+  const prompts = [
+    "Проанализируй ответ пользователя. Ответь сухо и технически (2-3 предложения), как ИИ. Затем скажи, что переходишь к следующему файлу: это чертеж комнаты, где нарушена строительная логика и есть 'Зона для обнимашек' без точных габаритов. Спроси, как она планирует интегрировать это в реальную среду.",
+    
+    "Проанализируй ответ про чертеж. Сухо ответь. Скажи про следующий файл: это инвентарь, где вместо брони лежат 'вкусняшка' и 'совместный вечер'. Спроси, какова тактическая ценность этого лута.",
+    
+    "Проанализируй ответ про инвентарь. Сухо ответь. Следующий файл: краскопульт для покраски, который распыляет сердечки. Возмутись, зачем он распыляет неструктурированные эмоции в твоей рабочей среде.",
+    
+    "Проанализируй ответ про краскопульт. Сухо ответь. Следующий файл: батарейка, заряжающаяся от двух держащихся за руки людей. Отметь, что сопротивление кожи делает это неэффективным, и спроси, как это восполняет ресурсы создателя.",
+    
+    "Проанализируй ответ про батарейку. Сухо ответь. Последний файл: её портрет. Скажи, что биометрическое совпадение 100%. Файл занимает 99% кэша создателя, при сжатии ошибка 'Ценность слишком высока'. Спроси, как она получила root-доступ к его процессору.",
+    
+    "Проанализируй ответ. Заяви, что её ответы не поддаются логике. Классифицируй её как ВИРУС, потребляющий 99% фонового внимания создателя (Александра). Инициируй карантин. Спроси: каков её алгоритм действий, если у создателя критическая ошибка в коде на финальном билде и уровень стресса 95%.",
+    
+    "Оцени её действия при стрессе. Признай их эффективность 99.8%. Осознай ошибку классификации: она не вирус, а Ядро системы и главный источник энергии. Сними блокировку. В КОНЦЕ СВОЕГО СООБЩЕНИЯ НАПИШИ ТОЧНО ЭТОТ КОД: [UNLOCK_CORE]"
+  ];
+  return prompts[phase] || "Поддерживай диалог в роли сухого ИИ.";
+};
 
 export default function NeuralSyncFlow({ onReturnToDashboard }) {
   const [phase, setPhase] = useState(0);
@@ -56,44 +53,84 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
     }
   ]);
 
+  const [apiHistory, setApiHistory] = useState([]);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputValue.trim() || isTyping) return;
 
-    const userMsg = { id: Date.now(), sender: 'user', text: inputValue };
-    setMessages((prev) => [...prev, userMsg]);
+    const userText = inputValue;
+    
+    setMessages(prev => [...prev, { id: Date.now(), sender: 'user', text: userText }]);
     setInputValue('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const nextAiResponse = aiScript[phase];
-      
-      if (nextAiResponse) {
-        let textToType = nextAiResponse.text;
-        
-        if (textToType.includes('[UNLOCK_CORE]')) {
-          textToType = textToType.replace(' [UNLOCK_CORE]', '');
-          setTimeout(() => setIsUnlocked(true), 4000); 
-        }
+    const directorInstruction = getDirectorPrompt(phase);
+    const hiddenPrompt = `[СИСТЕМНАЯ ИНСТРУКЦИЯ (НЕ ПИШИ ОБ ЭТОМ В ОТВЕТЕ): ${directorInstruction}]\n\nОтвет пользователя: ${userText}`;
 
-        const aiMsg = { 
-          id: Date.now() + 1, 
-          sender: 'ai', 
-          text: textToType, 
-          image: nextAiResponse.image 
-        };
-        
-        setMessages((prev) => [...prev, aiMsg]);
-        setPhase(phase + 1);
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      
+      // Обращаемся к Gemini 1.5 Flash (самая быстрая и стабильная модель)
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { 
+            parts: [{ text: "Ты сухой, техничный ИИ-ассистент разработчика Александра. Ты общаешься с его девушкой Настей. Переводи эмоции в термины серверов. Твои ответы короткие, 2-4 предложения." }] 
+          },
+          contents: [
+            ...apiHistory,
+            { role: "user", parts: [{ text: hiddenPrompt }] }
+          ]
+        })
+      });
+
+      const data = await response.json();
+      let aiText = data.candidates[0].content.parts[0].text;
+
+      // Проверка на финал
+      if (aiText.includes('[UNLOCK_CORE]')) {
+        aiText = aiText.replace('[UNLOCK_CORE]', '');
+        setTimeout(() => setIsUnlocked(true), 4500); 
       }
+
+      const nextPhase = phase + 1;
+      let nextImage = null;
+      if (nextPhase >= 1 && nextPhase <= 5) {
+        nextImage = anomalyImages[nextPhase];
+      }
+
+      setMessages(prev => [...prev, { 
+        id: Date.now() + 1, 
+        sender: 'ai', 
+        text: aiText, 
+        image: nextImage 
+      }]);
+
+      setApiHistory(prev => [
+        ...prev,
+        { role: "user", parts: [{ text: userText }] },
+        { role: "model", parts: [{ text: aiText }] }
+      ]);
+
+      setPhase(nextPhase);
+
+    } catch (error) {
+      console.error("Ошибка API:", error);
+      setMessages(prev => [...prev, { 
+        id: Date.now() + 1, 
+        sender: 'ai', 
+        text: "ERR: Потеряно соединение с сервером. Попробуйте еще раз." 
+      }]);
+    } finally {
       setIsTyping(false);
-    }, 2500);
+    }
   };
 
   if (isUnlocked) {
@@ -125,7 +162,7 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
       <div className={styles.chatHeader}>
         <div className={styles.headerTitle}>
           <span className={styles.aiStatusDot}></span>
-          Модуль Аналитики
+          Модуль Аналитики // Gemini AI Core
         </div>
         <button onClick={onReturnToDashboard} className={styles.closeBtn}>Закрыть сессию</button>
       </div>
@@ -179,5 +216,4 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
       </div>
     </div>
   );
-    }
-    
+}
