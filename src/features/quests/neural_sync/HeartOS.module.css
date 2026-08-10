@@ -1,0 +1,337 @@
+/* ОБЩИЙ КОНТЕЙНЕР ЧАТА */
+.chatWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #0d1117; /* Темный фон в стиле GitHub/Терминала */
+  color: #e6edf3;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ШАПКА */
+.chatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #161b22;
+  border-bottom: 1px solid #30363d;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.aiStatusDot {
+  width: 10px;
+  height: 10px;
+  background-color: #4ade80;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #4ade80;
+  animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.closeBtn {
+  background: transparent;
+  color: #8b949e;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.closeBtn:hover {
+  color: #f85149;
+}
+
+/* ТЕЛО ЧАТА */
+.chatBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.messageRow {
+  display: flex;
+  gap: 15px;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.rowUser {
+  justify-content: flex-end;
+}
+
+.rowAi {
+  justify-content: flex-start;
+}
+
+/* АВАТАРКИ */
+.avatarAi, .avatarUser {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.avatarAi {
+  background: linear-gradient(135deg, #1f6feb, #388bfd);
+  color: white;
+}
+
+.avatarUser {
+  background: linear-gradient(135deg, #238636, #2ea043);
+  color: white;
+}
+
+/* ПУЗЫРИ СООБЩЕНИЙ */
+.bubbleAi, .bubbleUser {
+  padding: 1.2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 85%;
+}
+
+.bubbleAi {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+  border-top-left-radius: 2px;
+}
+
+.bubbleUser {
+  background-color: #238636;
+  color: #ffffff;
+  border-top-right-radius: 2px;
+}
+
+.messageText {
+  white-space: pre-wrap;
+}
+
+/* КАРТИНКИ В ЧАТЕ */
+.imageWrapper {
+  margin-top: 15px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #30363d;
+  background-color: #0d1117;
+}
+
+.attachedImage {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ИНДИКАТОР ПЕЧАТИ */
+.typingIndicator {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border-top-left-radius: 2px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.typingIndicator span {
+  width: 8px;
+  height: 8px;
+  background-color: #8b949e;
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typingIndicator span:nth-child(1) { animation-delay: -0.32s; }
+.typingIndicator span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* ПОДВАЛ (ВВОД ТЕКСТА) */
+.chatFooter {
+  padding: 1.5rem 2rem;
+  background-color: #0d1117;
+  border-top: 1px solid #30363d;
+  display: flex;
+  justify-content: center;
+}
+
+.inputArea {
+  display: flex;
+  width: 100%;
+  max-width: 800px;
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 24px;
+  padding: 8px 10px 8px 20px;
+  align-items: center;
+  transition: border-color 0.3s;
+}
+
+.inputArea:focus-within {
+  border-color: #388bfd;
+}
+
+.inputArea input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #e6edf3;
+  font-size: 1rem;
+  outline: none;
+}
+
+.inputArea input:disabled {
+  opacity: 0.5;
+}
+
+.inputArea button {
+  background-color: #388bfd;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.inputArea button:hover:not(:disabled) {
+  background-color: #1f6feb;
+}
+
+.inputArea button:disabled {
+  background-color: #30363d;
+  color: #8b949e;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   ФИНАЛЬНЫЙ ЭКРАН И АНИМАЦИЯ СЕРДЦА
+   ========================================= */
+
+.finalScreen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #050505; /* Почти черный для контраста */
+  color: white;
+  text-align: center;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.heartContainer {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin-bottom: 4rem;
+}
+
+/* CSS-магия: рисуем сердце из геометрических фигур и заставляем биться */
+.beatingHeart {
+  position: absolute;
+  top: 0;
+  left: 25px;
+  width: 100px;
+  height: 100px;
+  background-color: #ff3366;
+  transform: rotate(-45deg);
+  animation: heartbeat 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  box-shadow: 0 0 40px rgba(255, 51, 102, 0.6);
+}
+
+.beatingHeart::before,
+.beatingHeart::after {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background-color: #ff3366;
+  border-radius: 50%;
+}
+
+.beatingHeart::before {
+  top: -50px;
+  left: 0;
+}
+
+.beatingHeart::after {
+  top: 0;
+  left: 50px;
+}
+
+@keyframes heartbeat {
+  0% { transform: rotate(-45deg) scale(1); }
+  15% { transform: rotate(-45deg) scale(1.15); }
+  30% { transform: rotate(-45deg) scale(1); }
+  45% { transform: rotate(-45deg) scale(1.15); }
+  60% { transform: rotate(-45deg) scale(1); }
+  100% { transform: rotate(-45deg) scale(1); }
+}
+
+.finalTextOverlay {
+  animation: fadeInText 3s ease-in forwards;
+  max-width: 600px;
+  z-index: 10;
+}
+
+@keyframes fadeInText {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.systemMessage {
+  color: #8b949e;
+  font-family: monospace;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.highlightMessage {
+  color: #e6edf3;
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+.coordinatesMessage {
+  color: #4ade80;
+  font-size: 1.4rem;
+  border: 1px solid #238636;
+  background-color: rgba(35, 134, 54, 0.1);
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+  }
