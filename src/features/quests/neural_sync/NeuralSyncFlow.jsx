@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './NeuralSync.module.css';
 
-// 1. ИМПОРТ КАРТИНОК ИЗ ПАПКИ src/public/assets
+// 1. ИМПОРТ КАРТИНОК (Оставляем твои рабочие пути)
 import imgFlowchart from '../../../public/assets/flowchart.png';
 import imgBlueprint from '../../../public/assets/blueprint.png';
 import imgInventory from '../../../public/assets/inventory.png';
@@ -74,13 +74,9 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
     const hiddenPrompt = `[СИСТЕМНАЯ ИНСТРУКЦИЯ (НЕ ПИШИ ОБ ЭТОМ В ОТВЕТЕ): ${directorInstruction}]\n\nОтвет пользователя: ${userText}`;
 
     try {
-     // Вшиваем ключ напрямую для недельного квеста
-     const apiKey = "AQ.Ab8RN6I5ksy2axQyPke9R1wHhJtoSSIDOnDCZ6303ACqT_XSMA";
+      // 3. ТВÓЙ КЛЮЧ УЖЕ ВШИТ СЮДА И ГОТОВ К РАБОТЕ
+      const apiKey = "AQ.Ab8RN6I5ksy2axQyPke9R1wHhJtoSSIDOnDCZ6303ACqT_XSMA";
       
-     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-        
-      
-      // Обращаемся к Gemini 1.5 Flash (самая быстрая и стабильная модель)
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -94,6 +90,10 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
           ]
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
       let aiText = data.candidates[0].content.parts[0].text;
@@ -130,13 +130,14 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
       setMessages(prev => [...prev, { 
         id: Date.now() + 1, 
         sender: 'ai', 
-        text: "ERR: Потеряно соединение с сервером. Попробуйте еще раз." 
+        text: "ERR: Потеряно соединение с сервером когнитивных вычислений. Попробуйте еще раз." 
       }]);
     } finally {
       setIsTyping(false);
     }
   };
 
+  // ЭКРАН ФИНАЛА
   if (isUnlocked) {
     return (
       <div className={styles.finalScreen}>
@@ -161,6 +162,7 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
     );
   }
 
+  // ЭКРАН ЧАТА
   return (
     <div className={styles.chatWrapper}>
       <div className={styles.chatHeader}>
