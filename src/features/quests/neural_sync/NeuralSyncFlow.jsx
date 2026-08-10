@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './NeuralSync.module.css';
 
-// 1. ИМПОРТ КАРТИНОК ИЗ ПАПКИ ASSETS
-import imgFlowchart from '../../../assets/flowchart.png';
-import imgBlueprint from '../../../assets/blueprint.png';
-import imgInventory from '../../../assets/inventory.png';
-import imgSprayer from '../../../assets/sprayer.png';
-import imgBattery from '../../../assets/battery.png';
-import imgPortrait from '../../../assets/portrait.png';
+// 1. ИМПОРТ КАРТИНОК ИЗ ПАПКИ src/public/assets
+import imgFlowchart from '../../../public/assets/flowchart.png';
+import imgBlueprint from '../../../public/assets/blueprint.png';
+import imgInventory from '../../../public/assets/inventory.png';
+import imgSprayer from '../../../public/assets/sprayer.png';
+import imgBattery from '../../../public/assets/battery.png';
+import imgPortrait from '../../../public/assets/portrait.png';
 
 const anomalyImages = [
   imgFlowchart, 
