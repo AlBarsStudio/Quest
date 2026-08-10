@@ -74,7 +74,11 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
     const hiddenPrompt = `[СИСТЕМНАЯ ИНСТРУКЦИЯ (НЕ ПИШИ ОБ ЭТОМ В ОТВЕТЕ): ${directorInstruction}]\n\nОтвет пользователя: ${userText}`;
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+     // Вшиваем ключ напрямую для недельного квеста
+     const apiKey = "AQ.Ab8RN6I5ksy2axQyPke9R1wHhJtoSSIDOnDCZ6303ACqT_XSMA";
+      
+     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        
       
       // Обращаемся к Gemini 1.5 Flash (самая быстрая и стабильная модель)
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
