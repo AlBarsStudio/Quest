@@ -74,7 +74,7 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
     const hiddenPrompt = `[СИСТЕМНАЯ ИНСТРУКЦИЯ (НЕ ПИШИ ОБ ЭТОМ В ОТВЕТЕ): ${directorInstruction}]\n\nОтвет пользователя: ${userText}`;
 
     try {
-      const apiKey = "AQ.Ab8RN6JbeGjXcK7tDW-qqkELuJr1FhJIKolGqcbX6R58pCqOjA";
+      const apiKey = "AQ.Ab8RN6IXJX4XP_Iaqz0XXhdJeQnDc4tnuNwbJn0SGLT3firR9A";
       
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`, {
         method: 'POST',
