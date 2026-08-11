@@ -3,43 +3,76 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import styles from './Dashboard.module.css';
 
-// --- 3D КОМПОНЕНТ (Голографическое ядро) ---
+/*
+ * ==========================================
+ * AI CONTEXT NOTES (DO NOT DELETE)
+ * ==========================================
+ * Project: Interactive Web Quest for Anastasia.
+ * Author: Aleksandr (Al Bars / AlBarsStudio).
+ * Context: Sci-fi terminal interface leading to a final real-world surprise.
+ * UI Concept: Bento Grid, Glassmorphism, 3D Hologram, typing effects.
+ * Current State: 3 Quests configured (completed, active, locked).
+ * ==========================================
+ */
+
+// --- 3D КОМПОНЕНТ (Живое Голографическое ядро) ---
 function HologramCore() {
   const meshRef = useRef();
 
   useFrame((state, delta) => {
+    // Вращение
     meshRef.current.rotation.x += delta * 0.2;
     meshRef.current.rotation.y += delta * 0.3;
-    // Легкая пульсация масштаба
-    const scale = 1 + Math.sin(state.clock.elapsedTime * 2) * 0.05;
-    meshRef.current.scale.set(scale, scale, scale);
+    // Плавное парение (дыхание)
+    meshRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.1;
   });
 
   return (
     <mesh ref={meshRef}>
       <icosahedronGeometry args={[1.5, 1]} />
-      <meshBasicMaterial color="#4ade80" wireframe={true} transparent opacity={0.6} />
+      <meshBasicMaterial color="#4ade80" wireframe={true} transparent opacity={0.7} />
     </mesh>
   );
 }
 
-// --- БАЗЫ ДАННЫХ ДЛЯ ТЕКСТОВ И ЛОГОВ ---
+// --- БАЗЫ ДАННЫХ И КОНФИГИ ---
+const questsData = [
+  {
+    id: 'core_defense',
+    title: 'Протокол: ALBARS_SHIELD',
+    desc: 'Угроза устранена. Ядро защищено.',
+    status: 'completed' 
+  },
+  {
+    id: 'neural_sync',
+    title: 'Sys.Anomaly // Синхронизация',
+    desc: 'Найдены нелогичные файлы. Нужна верификация.',
+    status: 'active'
+  },
+  {
+    id: 'monolith_base',
+    title: 'Протокол: Монолитное основание',
+    desc: 'Требуется допуск 2 уровня. Анализ памяти.',
+    status: 'locked'
+  }
+];
+
 const terminalPhrases = [
   "Сканирование нейронных связей... Успешно.",
   "Системное уведомление: Уровень очарования превышает серверные лимиты.",
   "Обнаружен сдвиг гравитационного поля. Сохраняйте спокойствие.",
   "Анализ завершен. Вывод: создатель проекта думает о вас прямо сейчас.",
-  "Перехват сигнала... Текст: 'Они смотрят на звезды'.",
-  "Внимание: Аномальный всплеск дофамина в секторе 4.",
+  "Перехват сигнала... Источник неизвестен. Текст: 'Они смотрят на звезды'.",
+  "Ошибка протокола безопасности. Причина: слишком теплая улыбка.",
 ];
 
 const mockLogs = [
   "SYS: Инициализация протокола 'Романтика'...",
   "WARN: Перегрузка эмоциональных контуров.",
-  "NET: Пинг до мобильного устройства... 2мс. Канал стабилен.",
-  "SYS: Рендер React-компонентов завершен.",
-  "SEC: Проверка защиты ALBARS_SHIELD... Угроз не обнаружено.",
-  "SCAN: Сборка бандла Vite прошла без ошибок.",
+  "NET: Пинг до ближайшей звезды: 42мс.",
+  "SYS: Модуль укладки стяжки деактивирован.", // Пасхалка осталась ;)
+  "SEC: Защита ALBARS_SHIELD активна.",
+  "SCAN: Поиск аномалий... Чисто.",
   "SYS: Фоновое обновление чувств завершено."
 ];
 
@@ -49,10 +82,6 @@ export default function Dashboard({ onStartQuest }) {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [typedText, setTypedText] = useState("");
   const [logs, setLogs] = useState(["SYS: Подключение к симуляции установлено..."]);
-  
-  // Динамические данные для графиков
-  const [cpuLoad, setCpuLoad] = useState(12);
-  const [syncLevel, setSyncLevel] = useState(98);
 
   // 1. Таймер симуляции
   useEffect(() => {
@@ -67,38 +96,39 @@ export default function Dashboard({ onStartQuest }) {
     return () => clearInterval(interval);
   }, []);
 
-  // 2. Эффект печатающей машинки
+  // 2. Улучшенный эффект печатающей машинки
   useEffect(() => {
-    setTypedText("");
     let charIndex = 0;
     const fullText = terminalPhrases[phraseIndex];
+    let typingInterval;
 
-    const typingInterval = setInterval(() => {
-      charIndex++;
-      setTypedText(fullText.slice(0, charIndex));
-      if (charIndex >= fullText.length) clearInterval(typingInterval);
-    }, 50);
+    setTypedText(""); // Очистка перед новой фразой
+
+    const startTimeout = setTimeout(() => {
+      typingInterval = setInterval(() => {
+        charIndex++;
+        setTypedText(fullText.slice(0, charIndex));
+        if (charIndex >= fullText.length) clearInterval(typingInterval);
+      }, 50);
+    }, 400); // Небольшая пауза для реалистичности
 
     const phraseChangeTimer = setTimeout(() => {
       setPhraseIndex((prev) => (prev + 1) % terminalPhrases.length);
-    }, 6000);
+    }, 8000);
 
     return () => {
+      clearTimeout(startTimeout);
       clearInterval(typingInterval);
       clearTimeout(phraseChangeTimer);
     };
   }, [phraseIndex]);
 
-  // 3. Генератор логов и динамических графиков
+  // 3. Генератор логов
   useEffect(() => {
     const logInterval = setInterval(() => {
       const randomLog = mockLogs[Math.floor(Math.random() * mockLogs.length)];
-      setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${randomLog}`].slice(-8));
-      
-      // Случайные колебания метрик
-      setCpuLoad(Math.floor(Math.random() * 30) + 10);
-      setSyncLevel(Math.floor(Math.random() * 5) + 95);
-    }, 3500);
+      setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${randomLog}`].slice(-6));
+    }, 4000);
     return () => clearInterval(logInterval);
   }, []);
 
@@ -110,7 +140,6 @@ export default function Dashboard({ onStartQuest }) {
 
   return (
     <div className={styles.dashboardContainer}>
-      {/* Бегущая строка наверху */}
       <div className={styles.topTicker}>
         <div className={styles.tickerTrack}>
           SYS.LOG: / / / АНАЛИЗ ЗАВЕРШЕН / / / КРИТИЧЕСКИХ ОШИБОК НЕТ / / / МОДУЛЬ СВЯЗИ АКТИВЕН / / / СИМУЛЯЦИЯ РАБОТАЕТ В ШТАТНОМ РЕЖИМЕ / / /
@@ -119,17 +148,17 @@ export default function Dashboard({ onStartQuest }) {
 
       <div className={styles.bentoGrid}>
         
-        {/* Карточка 1: Профиль (Hologram) */}
+        {/* Карточка 1: Профиль */}
         <div className={`${styles.bentoCard} ${styles.profile}`}>
           <div className={styles.cardHeader}>
             <div className={styles.statusDot}></div>
             Идентификация Ядра
           </div>
           <div className={styles.canvasContainer}>
-            <Canvas camera={{ position: [0, 0, 3] }}>
-              <ambientLight intensity={0.5} />
+            <Canvas camera={{ position: [0, 0, 3.5] }}>
+              <ambientLight intensity={0.6} />
               <HologramCore />
-              <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.5} />
+              <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.2} />
             </Canvas>
           </div>
           <h2 className={styles.profileName}>Анастасия</h2>
@@ -137,57 +166,35 @@ export default function Dashboard({ onStartQuest }) {
           <div className={styles.authBadge}>Root Доступ Разрешен</div>
         </div>
 
-        {/* Карточка 2: Модуль Квестов */}
+        {/* Карточка 2: Модуль Квестов (Динамический) */}
         <div className={`${styles.bentoCard} ${styles.quests}`}>
           <div className={styles.cardHeader}>Доступные модули</div>
           <div className={styles.questList}>
-            
-            <div className={styles.questItem}>
-              <div className={styles.questInfo}>
-                <h3>Протокол: ALBARS_SHIELD</h3>
-                <p>Угроза ядру. Требуется защита.</p>
+            {questsData.map((quest) => (
+              <div 
+                key={quest.id} 
+                className={`${styles.questItem} ${styles[quest.status]}`}
+              >
+                <div className={styles.questInfo}>
+                  <h3>{quest.title}</h3>
+                  <p>{quest.desc}</p>
+                </div>
+                {quest.status === 'completed' && <div className={styles.statusIcon}>✓</div>}
+                {quest.status === 'locked' && <div className={styles.statusIcon}>🔒</div>}
+                {quest.status === 'active' && (
+                  <button 
+                    className={styles.startBtnPulse}
+                    onClick={() => onStartQuest(quest.id)}
+                  >
+                    Подключиться
+                  </button>
+                )}
               </div>
-              <button className={styles.startBtn} onClick={() => onStartQuest('core_defense')}>
-                Запуск
-              </button>
-            </div>
-
-            <div className={styles.questItemActive}>
-              <div className={styles.questInfo}>
-                <h3>Sys.Anomaly // Синхронизация</h3>
-                <p>Найдены нелогичные файлы. Нужна верификация.</p>
-              </div>
-              <button className={styles.startBtnPulse} onClick={() => onStartQuest('neural_sync')}>
-                Подключиться
-              </button>
-            </div>
-
+            ))}
           </div>
         </div>
 
-        {/* Карточка 3: Мониторинг ресурсов (Новая) */}
-        <div className={`${styles.bentoCard} ${styles.systemMetrics}`}>
-          <div className={styles.cardHeader}>Системные ресурсы</div>
-          <div className={styles.metricsWrapper}>
-            <div className={styles.metricRow}>
-              <span>CPU (Эмоции)</span>
-              <div className={styles.progressBar}><div className={styles.progressFill} style={{width: `${cpuLoad}%`}}></div></div>
-              <span>{cpuLoad}%</span>
-            </div>
-            <div className={styles.metricRow}>
-              <span>RAM (Память)</span>
-              <div className={styles.progressBar}><div className={styles.progressFill} style={{width: '88%'}}></div></div>
-              <span>88%</span>
-            </div>
-            <div className={styles.metricRow}>
-              <span>Синхронизация</span>
-              <div className={styles.progressBar}><div className={styles.progressFillPulse} style={{width: `${syncLevel}%`}}></div></div>
-              <span className={styles.highlightText}>{syncLevel}%</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Карточка 4: Радар */}
+        {/* Карточка 3: Радар */}
         <div className={`${styles.bentoCard} ${styles.radarBox}`}>
           <div className={styles.cardHeader}>Пространственный скан</div>
           <div className={styles.radarContainer}>
@@ -199,21 +206,27 @@ export default function Dashboard({ onStartQuest }) {
           </div>
         </div>
 
-        {/* Карточка 5: Био-ритмы (Новая - График) */}
-        <div className={`${styles.bentoCard} ${styles.bioChart}`}>
-          <div className={styles.cardHeader}>Уровень Дофамина</div>
-          <div className={styles.chartContainer}>
-            <div className={styles.bar} style={{height: '40%'}}></div>
-            <div className={styles.bar} style={{height: '60%'}}></div>
-            <div className={styles.bar} style={{height: '45%'}}></div>
-            <div className={styles.bar} style={{height: '80%'}}></div>
-            <div className={styles.bar} style={{height: '65%'}}></div>
-            <div className={styles.bar} style={{height: '95%'}}></div>
-            <div className={styles.bar} style={{height: '100%', backgroundColor: '#4ade80'}}></div>
+        {/* Карточка 4: Метрики и Эквалайзер */}
+        <div className={`${styles.bentoCard} ${styles.stats}`}>
+          <div className={styles.cardHeader}>Метрики сеанса</div>
+          <div className={styles.statsWrapper}>
+            <div className={styles.timeBlock}>
+              <div className={styles.metricValue}>{formatTime(timeInSim)}</div>
+              <div className={styles.metricLabel}>Продолжительность (мин:сек)</div>
+            </div>
+            {/* Анимированный эквалайзер дофамина */}
+            <div className={styles.equalizer}>
+              <div className={styles.eqBar}></div>
+              <div className={styles.eqBar}></div>
+              <div className={styles.eqBar}></div>
+              <div className={styles.eqBar}></div>
+              <div className={styles.eqBar}></div>
+            </div>
           </div>
+          <div className={styles.sineWave}></div>
         </div>
 
-        {/* Карточка 6: Логи */}
+        {/* Карточка 5: Логи */}
         <div className={`${styles.bentoCard} ${styles.logsWindow}`}>
           <div className={styles.cardHeader}>Live System Log</div>
           <div className={styles.logContent}>
@@ -223,12 +236,22 @@ export default function Dashboard({ onStartQuest }) {
           </div>
         </div>
 
-        {/* Карточка 7: Терминал (широкая) */}
+        {/* Карточка 6: Инвентарь */}
+        <div className={`${styles.bentoCard} ${styles.inventory}`}>
+          <div className={styles.cardHeader}>База артефактов</div>
+          <div className={styles.inventoryGrid}>
+            <div className={`${styles.inventorySlot} ${styles.slotFilled}`}></div>
+            <div className={styles.inventorySlot}></div>
+            <div className={styles.inventorySlot}></div>
+            <div className={styles.inventorySlot}></div>
+          </div>
+        </div>
+
+        {/* Карточка 7: Терминал */}
         <div className={`${styles.bentoCard} ${styles.terminal}`}>
           <div className={styles.cardHeader}>Входящий канал связи [Шифрование: RSA-4096]</div>
           <div className={styles.terminalWindow}>
-            <div className={styles.terminalTime}>[{formatTime(timeInSim)}] Uptime</div>
-            <span className={styles.terminalPrefix}>root@albars-server:~# </span>
+            <span className={styles.terminalPrefix}>root@albars:~# </span>
             <span className={styles.terminalText}>{typedText}</span>
             <span className={styles.cursor}>_</span>
           </div>
@@ -237,5 +260,4 @@ export default function Dashboard({ onStartQuest }) {
       </div>
     </div>
   );
-                                  }
-    
+}
