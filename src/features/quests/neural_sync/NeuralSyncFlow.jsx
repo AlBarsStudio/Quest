@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './NeuralSync.module.css';
 
-// 1. ИМПОРТ КАРТИНОК (Оставляем твои рабочие пути)
+// 1. ИМПОРТ КАРТИНОК 
 import imgFlowchart from '../../../public/assets/flowchart.png';
 import imgBlueprint from '../../../public/assets/blueprint.png';
 import imgInventory from '../../../public/assets/inventory.png';
@@ -74,12 +74,14 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
     const hiddenPrompt = `[СИСТЕМНАЯ ИНСТРУКЦИЯ (НЕ ПИШИ ОБ ЭТОМ В ОТВЕТЕ): ${directorInstruction}]\n\nОтвет пользователя: ${userText}`;
 
     try {
-      // 3. ТВÓЙ КЛЮЧ УЖЕ ВШИТ СЮДА И ГОТОВ К РАБОТЕ
-      const apiKey = "AQ.Ab8RN6I5ksy2axQyPke9R1wHhJtoSSIDOnDCZ6303ACqT_XSMA";
+      const apiKey = "AQ.Ab8RN6JbeGjXcK7tDW-qqkELuJr1FhJIKolGqcbX6R58pCqOjA";
       
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey 
+        },
         body: JSON.stringify({
           systemInstruction: { 
             parts: [{ text: "Ты сухой, техничный ИИ-ассистент разработчика Александра. Ты общаешься с его девушкой Настей. Переводи эмоции в термины серверов. Твои ответы короткие, 2-4 предложения." }] 
@@ -130,7 +132,7 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
       setMessages(prev => [...prev, { 
         id: Date.now() + 1, 
         sender: 'ai', 
-        text: "ERR: Потеряно соединение с сервером когнитивных вычислений. Попробуйте еще раз." 
+        text: "ERR: Потеряно соединение с сервером когнитивных вычислений. Проверьте VPN или повторите запрос." 
       }]);
     } finally {
       setIsTyping(false);
