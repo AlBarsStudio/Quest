@@ -1,127 +1,106 @@
 /* ОБЩИЙ КОНТЕЙНЕР */
 .dashboardContainer {
   min-height: 100vh;
-  background-color: #050914;
-  color: #e2e8f0;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
-  padding: 20px;
+  background-color: #050505;
+  background-image: radial-gradient(circle at 50% 0%, #0f172a 0%, #050505 80%);
+  color: #e5e5e5;
+  padding: 60px 20px 40px 20px;
+  font-family: 'JetBrains Mono', 'Inter', sans-serif;
   display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
 }
 
 /* БЕГУЩАЯ СТРОКА */
 .topTicker {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid #1e293b;
-  border-left: 4px solid #4ade80;
-  padding: 8px 0;
-  margin-bottom: 20px;
+  height: 28px;
+  background: rgba(74, 222, 128, 0.05);
+  border-bottom: 1px solid rgba(74, 222, 128, 0.2);
+  display: flex;
+  align-items: center;
   overflow: hidden;
-  border-radius: 4px;
 }
 
 .tickerTrack {
   white-space: nowrap;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: #4ade80;
-  animation: tickerScroll 20s linear infinite;
   letter-spacing: 2px;
+  animation: ticker 25s linear infinite;
 }
 
-@keyframes tickerScroll {
-  0% { transform: translateX(100%); }
+@keyframes ticker {
+  0% { transform: translateX(100vw); }
   100% { transform: translateX(-100%); }
 }
 
-/* СЕТКА BENTO GRID (Новая структура) */
+/* СЕТКА BENTO GRID */
 .bentoGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(180px, auto);
-  gap: 16px;
+  grid-template-rows: auto auto auto;
+  gap: 20px;
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
+  max-width: 1350px;
 }
 
 /* ОБЩИЙ СТИЛЬ КАРТОЧЕК */
 .bentoCard {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid #1e293b;
-  border-radius: 12px;
-  padding: 20px;
-  backdrop-filter: blur(10px);
+  background: rgba(15, 20, 30, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  transition: border-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  /* Анимация появления */
+  opacity: 0;
+  animation: fadeUp 0.8s ease-out forwards;
+}
+
+/* Задержка появления для эффекта каскада */
+.profile { animation-delay: 0.1s; grid-column: 1 / 2; grid-row: 1 / 3; text-align: center; }
+.quests { animation-delay: 0.2s; grid-column: 2 / 4; grid-row: 1 / 2; }
+.radarBox { animation-delay: 0.3s; grid-column: 4 / 5; grid-row: 1 / 2; }
+.stats { animation-delay: 0.4s; grid-column: 2 / 3; grid-row: 2 / 3; }
+.logsWindow { animation-delay: 0.5s; grid-column: 3 / 5; grid-row: 2 / 3; }
+.inventory { animation-delay: 0.6s; grid-column: 1 / 3; grid-row: 3 / 4; }
+.terminal { animation-delay: 0.7s; grid-column: 3 / 5; grid-row: 3 / 4; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .bentoCard:hover {
-  border-color: #334155;
+  border-color: rgba(74, 222, 128, 0.3);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(74, 222, 128, 0.05);
+  transform: translateY(-4px);
 }
 
+/* ЗАГОЛОВКИ КАРТОЧЕК */
 .cardHeader {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
+  letter-spacing: 2px;
   color: #94a3b8;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  letter-spacing: 1px;
-  border-bottom: 1px solid #1e293b;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   padding-bottom: 10px;
-}
-
-/* СПЕЦИФИЧНЫЕ РАЗМЕРЫ КАРТОЧЕК */
-.profile {
-  grid-column: span 1;
-  grid-row: span 2;
-  align-items: center;
-  text-align: center;
-}
-
-.quests {
-  grid-column: span 2;
-  grid-row: span 1;
-}
-
-.systemMetrics {
-  grid-column: span 1;
-  grid-row: span 1;
-}
-
-.radarBox {
-  grid-column: span 1;
-  grid-row: span 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.bioChart {
-  grid-column: span 1;
-  grid-row: span 1;
-}
-
-.logsWindow {
-  grid-column: span 2;
-  grid-row: span 1;
-}
-
-.terminal {
-  grid-column: span 4;
-  grid-row: span 1;
-}
-
-/* ПРОФИЛЬ (ЯДРО) */
-.canvasContainer {
-  width: 100%;
-  height: 180px;
-  margin-bottom: 15px;
 }
 
 .statusDot {
@@ -129,12 +108,27 @@
   height: 8px;
   background-color: #4ade80;
   border-radius: 50%;
-  box-shadow: 0 0 10px #4ade80;
   animation: pulse 2s infinite;
 }
 
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+/* ПРОФИЛЬ */
+.canvasContainer {
+  width: 100%;
+  height: 220px;
+  margin-bottom: 15px;
+  cursor: grab;
+}
+.canvasContainer:active { cursor: grabbing; }
+
 .profileName {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: 400;
   margin: 0 0 5px 0;
   color: #f8fafc;
 }
@@ -149,13 +143,14 @@
   background: rgba(74, 222, 128, 0.1);
   color: #4ade80;
   border: 1px solid rgba(74, 222, 128, 0.3);
-  padding: 4px 12px;
+  padding: 6px 12px;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
+  display: inline-block;
 }
 
-/* МОДУЛЬ КВЕСТОВ */
+/* КВЕСТЫ */
 .questList {
   display: flex;
   flex-direction: column;
@@ -164,24 +159,36 @@
   justify-content: center;
 }
 
-.questItem, .questItemActive {
+.questItem {
+  border-radius: 8px;
+  padding: 14px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background: rgba(30, 41, 59, 0.4);
-  border-radius: 8px;
-  border: 1px solid #1e293b;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.questItemActive {
-  border-color: #388bfd;
-  background: rgba(56, 139, 253, 0.05);
+.questItem.active {
+  background: rgba(56, 139, 253, 0.08);
+  border-color: rgba(56, 139, 253, 0.4);
+}
+
+.questItem.locked {
+  opacity: 0.4;
+  border-style: dashed;
+}
+
+.questItem.completed {
+  background: rgba(74, 222, 128, 0.05);
+  border-color: rgba(74, 222, 128, 0.3);
 }
 
 .questInfo h3 {
   margin: 0 0 4px 0;
   font-size: 1rem;
+  font-weight: 400;
   color: #e2e8f0;
 }
 
@@ -191,30 +198,30 @@
   color: #94a3b8;
 }
 
-.startBtn, .startBtnPulse {
-  background: #1e293b;
-  color: #e2e8f0;
-  border: 1px solid #334155;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s;
+.statusIcon {
+  font-size: 1.2rem;
+  color: #94a3b8;
 }
-
-.startBtn:hover {
-  background: #334155;
-}
+.completed .statusIcon { color: #4ade80; }
 
 .startBtnPulse {
-  background: #388bfd;
-  color: #fff;
-  border-color: #1f6feb;
+  background: transparent;
+  color: #388bfd;
+  border: 1px solid #388bfd;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
   animation: btnPulse 2s infinite;
 }
 
 .startBtnPulse:hover {
-  background: #1f6feb;
+  background: #388bfd;
+  color: #fff;
+  box-shadow: 0 0 15px rgba(56, 139, 253, 0.5);
 }
 
 @keyframes btnPulse {
@@ -223,236 +230,178 @@
   100% { box-shadow: 0 0 0 0 rgba(56, 139, 253, 0); }
 }
 
-/* СИСТЕМНЫЕ МЕТРИКИ (НОВОЕ) */
-.metricsWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  flex: 1;
-  justify-content: center;
-}
-
-.metricRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.85rem;
-  color: #cbd5e1;
-}
-
-.metricRow span:first-child {
-  width: 100px;
-}
-
-.metricRow span:last-child {
-  width: 40px;
-  text-align: right;
-}
-
-.progressBar {
-  flex: 1;
-  height: 6px;
-  background: #1e293b;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  background: #388bfd;
-  transition: width 0.5s ease-in-out;
-}
-
-.progressFillPulse {
-  height: 100%;
-  background: #4ade80;
-  transition: width 0.5s ease-in-out;
-  box-shadow: 0 0 8px #4ade80;
-}
-
-.highlightText {
-  color: #4ade80;
-  font-weight: bold;
-}
-
-/* ГРАФИК ДОФАМИНА (НОВОЕ) */
-.chartContainer {
-  flex: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 4px;
-  padding-top: 10px;
-}
-
-.bar {
-  flex: 1;
-  background: #388bfd;
-  border-radius: 2px 2px 0 0;
-  opacity: 0.8;
-  transition: height 0.5s ease;
-  animation: barGrow 1s ease-out;
-}
-
-.bar:hover {
-  opacity: 1;
-  filter: brightness(1.2);
-}
-
-@keyframes barGrow {
-  from { height: 0%; }
-}
-
 /* РАДАР */
 .radarContainer {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
 }
 
 .radarCircle {
-  width: 100%;
-  height: 100%;
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
-  border: 2px solid rgba(74, 222, 128, 0.3);
-  background: radial-gradient(circle, rgba(74,222,128,0.05) 0%, rgba(0,0,0,0) 70%);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  background: repeating-radial-gradient(transparent, transparent 15px, rgba(74, 222, 128, 0.1) 16px, transparent 17px);
   position: relative;
   overflow: hidden;
 }
 
-.radarCircle::before {
-  content: '';
-  position: absolute;
-  top: 50%; left: 0; right: 0;
-  height: 1px;
-  background: rgba(74, 222, 128, 0.2);
-}
-
-.radarCircle::after {
-  content: '';
-  position: absolute;
-  left: 50%; top: 0; bottom: 0;
-  width: 1px;
-  background: rgba(74, 222, 128, 0.2);
-}
+.radarCircle::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(74, 222, 128, 0.3); }
+.radarCircle::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(74, 222, 128, 0.3); }
 
 .radarSweep {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 50%;
-  height: 50%;
-  background: linear-gradient(45deg, rgba(74, 222, 128, 0) 0%, rgba(74, 222, 128, 0.4) 100%);
+  top: 50%; left: 50%;
+  width: 50%; height: 50%;
+  background: linear-gradient(45deg, rgba(74, 222, 128, 0.6), transparent);
   transform-origin: 0% 0%;
-  animation: sweep 4s linear infinite;
+  animation: sweep 3s linear infinite;
 }
 
-.radarDot {
+@keyframes sweep { 100% { transform: rotate(360deg); } }
+
+.radarDot, .radarDot2 {
   position: absolute;
+  border-radius: 50%;
+  box-shadow: 0 0 10px currentColor;
+  animation: blinkDot 3s infinite;
+}
+
+.radarDot { width: 6px; height: 6px; background: #4ade80; color: #4ade80; top: 30%; left: 60%; }
+.radarDot2 { width: 4px; height: 4px; background: #388bfd; color: #388bfd; top: 65%; left: 35%; animation-delay: 1.5s; }
+
+@keyframes blinkDot { 0%, 100% { opacity: 0.1; } 50% { opacity: 1; transform: scale(1.5); } }
+
+/* СТАТИСТИКА И ЭКВАЛАЙЗЕР */
+.statsWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metricValue { font-size: 2.2rem; font-weight: 300; color: #fff; }
+.metricLabel { font-size: 0.8rem; color: #64748b; }
+
+.equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 30px;
+}
+
+.eqBar {
   width: 6px;
-  height: 6px;
-  background: #4ade80;
-  border-radius: 50%;
-  top: 30%;
-  left: 60%;
-  box-shadow: 0 0 6px #4ade80;
-  animation: blink 2s infinite;
-}
-
-.radarDot2 {
-  position: absolute;
-  width: 4px;
-  height: 4px;
   background: #388bfd;
-  border-radius: 50%;
-  top: 70%;
-  left: 40%;
-  box-shadow: 0 0 6px #388bfd;
-  animation: blink 3s infinite reverse;
+  border-radius: 2px;
+  animation: eqPlay 1.5s infinite ease-in-out alternate;
 }
 
-@keyframes sweep {
-  to { transform: rotate(360deg); }
+.eqBar:nth-child(1) { animation-delay: 0.1s; }
+.eqBar:nth-child(2) { animation-delay: 0.4s; }
+.eqBar:nth-child(3) { animation-delay: 0.2s; }
+.eqBar:nth-child(4) { animation-delay: 0.6s; }
+.eqBar:nth-child(5) { animation-delay: 0.3s; }
+
+@keyframes eqPlay {
+  0% { height: 20%; }
+  100% { height: 100%; }
 }
 
-@keyframes blink {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 1; transform: scale(1.5); }
+.sineWave {
+  margin-top: 25px;
+  height: 30px;
+  width: 100%;
+  background: repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(74, 222, 128, 0.05) 10px, rgba(74, 222, 128, 0.05) 11px);
+  position: relative;
+}
+
+.sineWave::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; width: 100%; height: 2px;
+  background: #4ade80;
+  box-shadow: 0 0 10px #4ade80;
+  animation: heartbeat 2.5s infinite linear;
+}
+
+@keyframes heartbeat {
+  0%, 20%, 100% { transform: scaleY(1); opacity: 0.4; }
+  10% { transform: scaleY(6); opacity: 1; }
+  15% { transform: scaleY(-4); opacity: 0.8; }
 }
 
 /* ЛОГИ */
 .logContent {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  flex: 1;
-  overflow: hidden;
-}
-
-.logLine {
+  gap: 8px;
   font-size: 0.8rem;
   color: #94a3b8;
-  animation: slideIn 0.3s ease-out;
+  height: 100%;
+  justify-content: flex-end;
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-10px); }
-  to { opacity: 1; transform: translateX(0); }
+.logLine { animation: slideUp 0.3s ease-out forwards; }
+@keyframes slideUp { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ИНВЕНТАРЬ */
+.inventoryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  flex: 1;
+}
+
+.inventorySlot {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  aspect-ratio: 1;
+  transition: all 0.3s ease;
+}
+
+.slotFilled {
+  background: rgba(56, 139, 253, 0.1);
+  border-color: rgba(56, 139, 253, 0.4);
+  box-shadow: inset 0 0 15px rgba(56, 139, 253, 0.2);
 }
 
 /* ТЕРМИНАЛ */
 .terminalWindow {
   flex: 1;
-  background: #0d1117;
-  border-radius: 6px;
-  padding: 15px;
-  border: 1px solid #1e293b;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+  line-height: 1.6;
 }
 
-.terminalTime {
-  color: #64748b;
-  font-size: 0.8rem;
-  width: 100%;
-  margin-bottom: 5px;
-}
-
-.terminalPrefix {
-  color: #4ade80;
-  font-weight: bold;
-}
-
-.terminalText {
-  color: #e2e8f0;
-}
+.terminalPrefix { color: #4ade80; font-weight: bold; margin-right: 8px; }
+.terminalText { color: #e2e8f0; }
 
 .cursor {
   display: inline-block;
-  width: 10px;
-  height: 1.2em;
+  width: 10px; height: 1.1em;
   background-color: #4ade80;
-  animation: cursorBlink 1s step-end infinite;
   vertical-align: bottom;
+  margin-left: 4px;
+  animation: blinkCursor 1s step-end infinite;
 }
 
-@keyframes cursorBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
+@keyframes blinkCursor { 50% { opacity: 0; } }
 
 /* АДАПТИВНОСТЬ */
 @media (max-width: 1024px) {
   .bentoGrid { grid-template-columns: repeat(2, 1fr); }
-  .profile { grid-column: span 2; grid-row: span 1; }
-  .quests, .logsWindow, .terminal { grid-column: span 2; }
+  .profile { grid-column: 1 / 3; grid-row: auto; }
+  .quests, .logsWindow, .inventory, .terminal { grid-column: 1 / 3; }
+  .stats, .radarBox { grid-column: span 1; }
 }
 
 @media (max-width: 600px) {
   .bentoGrid { grid-template-columns: 1fr; }
-  .profile, .quests, .systemMetrics, .radarBox, .bioChart, .logsWindow, .terminal { grid-column: span 1; }
-                                          }
+  .bentoCard { grid-column: 1 / -1 !important; }
+}
