@@ -10,8 +10,6 @@ import styles from './Dashboard.module.css';
  * Project: Interactive Web Quest for Anastasia.
  * Author: Aleksandr (Al Bars / AlBarsStudio).
  * Context: Sci-fi terminal interface leading to a final real-world surprise.
- * UI Concept: Bento Grid, Glassmorphism, 3D Hologram, typing effects.
- * Current State: 3 Quests configured (completed, active, locked).
  * ==========================================
  */
 
@@ -20,10 +18,8 @@ function HologramCore() {
   const meshRef = useRef();
 
   useFrame((state, delta) => {
-    // Вращение
     meshRef.current.rotation.x += delta * 0.2;
     meshRef.current.rotation.y += delta * 0.3;
-    // Плавное парение (дыхание)
     meshRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.1;
   });
 
@@ -35,25 +31,31 @@ function HologramCore() {
   );
 }
 
-// --- БАЗЫ ДАННЫХ И КОНФИГИ ---
+// --- БАЗА ДАННЫХ КВЕСТОВ (Все активны для тестирования) ---
 const questsData = [
   {
     id: 'core_defense',
-    title: 'Протокол: ALBARS_SHIELD',
-    desc: 'Угроза устранена. Ядро защищено.',
-    status: 'completed' 
+    title: 'Протокол: ALBARS_SHIELD (Тайпинг)',
+    desc: 'Отражение кибератаки. Ввод скоростного кода.',
+    status: 'active' 
   },
   {
-    id: 'neural_sync',
-    title: 'Sys.Anomaly // Синхронизация',
-    desc: 'Найдены нелогичные файлы. Нужна верификация.',
+    id: 'heart_os',
+    title: 'Протокол: Heart OS (Капча)',
+    desc: 'Верификация чувств. Обход защиты слоев.',
     status: 'active'
   },
   {
-    id: 'monolith_base',
-    title: 'Протокол: Монолитное основание',
-    desc: 'Требуется допуск 2 уровня. Анализ памяти.',
-    status: 'locked'
+    id: 'neural_sync',
+    title: 'Sys.Anomaly // Синхронизация (Бот)',
+    desc: 'Нейронный контакт с системным ядром.',
+    status: 'active'
+  },
+  {
+    id: 'final_quest',
+    title: 'Протокол: GRAND_FINALE',
+    desc: 'Слияние артефактов. Требуются ключи дешифровки.',
+    status: 'active'
   }
 ];
 
@@ -70,7 +72,7 @@ const mockLogs = [
   "SYS: Инициализация протокола 'Романтика'...",
   "WARN: Перегрузка эмоциональных контуров.",
   "NET: Пинг до ближайшей звезды: 42мс.",
-  "SYS: Модуль укладки стяжки деактивирован.", // Пасхалка осталась ;)
+  "SYS: Модуль укладки стяжки деактивирован.", 
   "SEC: Защита ALBARS_SHIELD активна.",
   "SCAN: Поиск аномалий... Чисто.",
   "SYS: Фоновое обновление чувств завершено."
@@ -96,13 +98,13 @@ export default function Dashboard({ onStartQuest }) {
     return () => clearInterval(interval);
   }, []);
 
-  // 2. Улучшенный эффект печатающей машинки
+  // 2. Эффект печатающей машинки
   useEffect(() => {
     let charIndex = 0;
     const fullText = terminalPhrases[phraseIndex];
     let typingInterval;
 
-    setTypedText(""); // Очистка перед новой фразой
+    setTypedText(""); 
 
     const startTimeout = setTimeout(() => {
       typingInterval = setInterval(() => {
@@ -110,7 +112,7 @@ export default function Dashboard({ onStartQuest }) {
         setTypedText(fullText.slice(0, charIndex));
         if (charIndex >= fullText.length) clearInterval(typingInterval);
       }, 50);
-    }, 400); // Небольшая пауза для реалистичности
+    }, 400); 
 
     const phraseChangeTimer = setTimeout(() => {
       setPhraseIndex((prev) => (prev + 1) % terminalPhrases.length);
@@ -166,7 +168,7 @@ export default function Dashboard({ onStartQuest }) {
           <div className={styles.authBadge}>Root Доступ Разрешен</div>
         </div>
 
-        {/* Карточка 2: Модуль Квестов (Динамический) */}
+        {/* Карточка 2: Модуль Квестов (Все активны) */}
         <div className={`${styles.bentoCard} ${styles.quests}`}>
           <div className={styles.cardHeader}>Доступные модули</div>
           <div className={styles.questList}>
@@ -214,7 +216,6 @@ export default function Dashboard({ onStartQuest }) {
               <div className={styles.metricValue}>{formatTime(timeInSim)}</div>
               <div className={styles.metricLabel}>Продолжительность (мин:сек)</div>
             </div>
-            {/* Анимированный эквалайзер дофамина */}
             <div className={styles.equalizer}>
               <div className={styles.eqBar}></div>
               <div className={styles.eqBar}></div>
