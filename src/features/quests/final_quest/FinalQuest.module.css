@@ -1,0 +1,331 @@
+/* ОБЩИЙ КОНТЕЙНЕР */
+.container {
+  min-height: 100vh;
+  width: 100vw;
+  background-color: #050505;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  font-family: 'JetBrains Mono', monospace;
+  position: relative;
+}
+
+/* =========================================
+   ФАЗА 1: SCI-FI ТЕРМИНАЛ
+========================================= */
+.authWrapper {
+  background: rgba(15, 20, 30, 0.7);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  padding: 40px;
+  border-radius: 4px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(74, 222, 128, 0.05);
+  position: relative;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  max-width: 500px;
+  width: 90%;
+  animation: fadeIn 1s ease-out;
+}
+
+.scanline {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 2px;
+  background: rgba(74, 222, 128, 0.5);
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
+  animation: scan 3s linear infinite;
+}
+
+@keyframes scan {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.title {
+  color: #4ade80;
+  font-size: 1.5rem;
+  letter-spacing: 4px;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #64748b;
+  font-size: 0.8rem;
+  margin-bottom: 30px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.inputBox label {
+  display: block;
+  text-align: left;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-bottom: 5px;
+}
+
+.inputBox input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 12px 15px;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.inputBox input:focus {
+  border-color: #4ade80;
+  box-shadow: inset 0 0 10px rgba(74, 222, 128, 0.2);
+}
+
+.errorInput {
+  border-color: #ef4444 !important;
+  animation: shake 0.4s;
+}
+
+.errorMessage {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-bottom: 15px;
+  text-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+}
+
+.verifyBtn {
+  background: transparent;
+  color: #4ade80;
+  border: 1px solid #4ade80;
+  padding: 12px 0;
+  width: 100%;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 15px;
+}
+
+.verifyBtn:hover {
+  background: rgba(74, 222, 128, 0.2);
+  box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+}
+
+.backBtn {
+  background: transparent;
+  color: #64748b;
+  border: none;
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+/* =========================================
+   ФАЗА 2: ГЛИТЧ-ВЗЛОМ
+========================================= */
+.glitchWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.glitchText {
+  font-size: 3rem;
+  color: #fff;
+  position: relative;
+  letter-spacing: 5px;
+  text-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+/* CSS Глитч Эффект */
+.glitchText::before, .glitchText::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: #050505;
+}
+.glitchText::before {
+  left: 3px;
+  text-shadow: -2px 0 #ef4444;
+  clip: rect(24px, 550px, 90px, 0);
+  animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+.glitchText::after {
+  left: -3px;
+  text-shadow: -2px 0 #388bfd;
+  clip: rect(85px, 550px, 140px, 0);
+  animation: glitch-anim 2.5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% { clip: rect(10px, 9999px, 80px, 0); }
+  20% { clip: rect(60px, 9999px, 15px, 0); }
+  40% { clip: rect(30px, 9999px, 50px, 0); }
+  60% { clip: rect(80px, 9999px, 20px, 0); }
+  80% { clip: rect(15px, 9999px, 70px, 0); }
+  100% { clip: rect(50px, 9999px, 30px, 0); }
+}
+
+.progressBar {
+  width: 300px; height: 4px;
+  background: rgba(255,255,255,0.1);
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: #fff;
+  width: 0%;
+  animation: fillProgress 2s ease-in-out forwards;
+}
+
+@keyframes fillProgress { to { width: 100%; } }
+
+/* =========================================
+   ФАЗА 3: МАГИЧЕСКИЙ ФИНАЛ (ГАРРИ ПОТТЕР)
+========================================= */
+.magicWrapper {
+  position: absolute;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: radial-gradient(circle at center, #1a1b26 0%, #050505 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Georgia', serif; /* Киношный шрифт */
+  z-index: 100;
+  animation: magicFadeIn 2s ease-out forwards;
+}
+
+/* ПАРАЛЛАКС ЗВЕЗД / МАГИЧЕСКОЙ ПЫЛИ */
+.stars1, .stars2, .stars3 {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: transparent;
+  z-index: 1;
+}
+
+/* Генерируем точки через радиальный градиент */
+.stars1 {
+  background-image: radial-gradient(2px 2px at 20px 30px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: starsDrift 60s linear infinite;
+  opacity: 0.3;
+}
+.stars2 {
+  background-image: radial-gradient(3px 3px at 50px 50px, #ffd700, rgba(0,0,0,0)), radial-gradient(2px 2px at 150px 100px, #fff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 300px 300px;
+  animation: starsDrift 40s linear infinite;
+  opacity: 0.2;
+}
+.stars3 {
+  background-image: radial-gradient(4px 4px at 100px 150px, #fff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 400px 400px;
+  animation: starsDrift 25s linear infinite;
+  opacity: 0.1;
+}
+
+@keyframes starsDrift {
+  from { transform: translateY(0); }
+  to { transform: translateY(-1000px); }
+}
+
+@keyframes magicFadeIn {
+  from { opacity: 0; background: #000; }
+  to { opacity: 1; }
+}
+
+/* КОНТЕНТ ФИНАЛА */
+.magicContent {
+  position: relative;
+  z-index: 10;
+  max-width: 700px;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.magicTitle {
+  font-size: 2.5rem;
+  color: #d4af37; /* Золотой цвет Хогвартса */
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  font-weight: normal;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+.divider {
+  width: 150px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d4af37, transparent);
+  margin: 0 auto 30px auto;
+}
+
+.magicContent p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.magicContent i { color: #d4af37; font-style: italic; }
+
+.highlightText {
+  font-size: 1.3rem !important;
+  color: #fff !important;
+  text-shadow: 0 0 10px rgba(255,255,255,0.3);
+  margin-top: 30px;
+}
+
+.finalQuestion {
+  font-size: 1.8rem !important;
+  color: #d4af37 !important;
+  margin: 30px 0 !important;
+}
+
+.actionText {
+  font-size: 1.1rem !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* АНИМАЦИИ ПОЯВЛЕНИЯ ТЕКСТА (Каскадное чтение) */
+.revealDelay1 { opacity: 0; animation: cinematicReveal 2s ease-out 1s forwards; }
+.magicTextDelay2 { opacity: 0; animation: cinematicReveal 2s ease-out 3s forwards; }
+.magicTextDelay3 { opacity: 0; animation: cinematicReveal 2s ease-out 6s forwards; }
+.magicTextDelay4 { opacity: 0; animation: cinematicReveal 2s ease-out 9s forwards; }
+.magicTextDelay5 { opacity: 0; animation: cinematicReveal 2s ease-out 13s forwards; }
+
+@keyframes cinematicReveal {
+  from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* Адаптив */
+@media (max-width: 600px) {
+  .magicTitle { font-size: 2rem; }
+  .magicContent p { font-size: 1rem; }
+  .finalQuestion { font-size: 1.5rem !important; }
+  }
+                              
