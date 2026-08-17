@@ -1,19 +1,37 @@
-/* Общий контейнер консоли */
+/* ===================================================
+   ЧАСТЬ 1: ФОН, ОКНО ТЕРМИНАЛА, СТАТУС-БАР И ТЕКСТ
+   =================================================== */
+
 .terminalContainer {
   width: 100vw;
   height: 100vh;
-  background-color: #050505;
-  color: #00ff41; /* Классический зеленый цвет терминала */
-  font-family: 'Courier New', Courier, monospace;
+  background: #04070d;
+  background-image: 
+    radial-gradient(circle at 50% 10%, rgba(14, 165, 233, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(244, 63, 94, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #04070d 0%, #020408 100%);
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
   overflow: hidden;
   position: relative;
-  box-sizing: border-box;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
 }
 
-/* Имитация старого экрана (сканлайны) */
+.ambientGlow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
 .crtOverlay {
   position: absolute;
   top: 0;
@@ -21,82 +39,341 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(
-    rgba(18, 16, 16, 0) 50%, 
-    rgba(0, 0, 0, 0.25) 50%
+    rgba(18, 24, 38, 0) 50%, 
+    rgba(0, 0, 0, 0.3) 50%
   );
   background-size: 100% 4px;
   pointer-events: none;
+  z-index: 20;
+  opacity: 0.7;
+}
+
+/* Стекло терминала */
+.terminalWindow {
+  width: 100%;
+  max-width: 1050px;
+  height: 88vh;
+  max-height: 820px;
+  background: rgba(8, 12, 22, 0.78);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 14px;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.8),
+    0 0 35px rgba(56, 189, 248, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  position: relative;
   z-index: 10;
+  overflow: hidden;
+  animation: modalFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Окно с текстом */
-.terminalContent {
-  width: 80%;
-  max-width: 1000px;
-  height: 80%;
-  padding: 30px;
-  border: 1px solid #113311;
-  border-radius: 8px;
-  background: rgba(0, 10, 0, 0.6);
-  box-shadow: 0 0 20px rgba(0, 255, 65, 0.1) inset;
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(15px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Шапка окна */
+.windowHeader {
+  height: 48px;
+  background: rgba(13, 19, 33, 0.85);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  flex-shrink: 0;
+}
+
+.windowControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.controlDot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dotRed { background: #ff5f56; box-shadow: 0 0 6px rgba(255, 95, 86, 0.6); }
+.dotYellow { background: #ffbd2e; box-shadow: 0 0 6px rgba(255, 189, 46, 0.6); }
+.dotGreen { background: #27c93f; box-shadow: 0 0 6px rgba(39, 201, 63, 0.6); }
+
+.windowTitle {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.headerBadges {
+  display: flex;
+  gap: 10px;
+}
+
+.badgeGemini {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  letter-spacing: 1px;
+}
+
+.badgeSec {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(244, 63, 94, 0.1);
+  color: #f43f5e;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  letter-spacing: 1px;
+  animation: pulseThreat 2s infinite ease-in-out;
+}
+
+@keyframes pulseThreat {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Область вывода текста */
+.windowBody {
+  flex: 1;
+  padding: 24px 28px;
   overflow-y: auto;
-  z-index: 5;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
-/* Текст печатной машинки */
-.typewriterText {
+.windowBody::-webkit-scrollbar {
+  width: 6px;
+}
+.windowBody::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+.windowBody::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 3px;
+}
+
+.terminalText {
   white-space: pre-wrap;
   word-wrap: break-word;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 0.96rem;
+  line-height: 1.7;
+  color: #e2e8f0;
   margin: 0;
+  text-shadow: 0 0 1px rgba(226, 232, 240, 0.4);
 }
 
-/* Мигающий курсор */
-.cursor {
+.cyberCursor {
   display: inline-block;
-  animation: blink 1s step-end infinite;
-  margin-left: 2px;
+  color: #38bdf8;
+  margin-left: 3px;
+  animation: cursorBlink 0.8s infinite;
 }
 
-@keyframes blink {
+@keyframes cursorBlink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
+/* ===================================================
+   ЧАСТЬ 2: КНОПКИ, ЭКРАН ОШИБКИ И АДАПТАЦИЯ (МОБИЛКИ)
+   =================================================== */
 
-/* --- ВРЕМЕННЫЕ СТИЛИ ДЛЯ ЗАГЛУШКИ ВЗЛОМА --- */
-.hackingPlaceholder {
-  width: 100vw;
-  height: 100vh;
-  background-color: #0a0a0a;
-  color: #fff;
+/* Подвал окна */
+.windowFooter {
+  padding: 16px 28px;
+  background: rgba(10, 15, 26, 0.9);
+  border-top: 1px solid rgba(56, 189, 248, 0.15);
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
-  font-family: 'Courier New', Courier, monospace;
+  min-height: 68px;
+  box-sizing: border-box;
 }
 
-.warningTitle {
-  color: #ff2a2a;
-  text-shadow: 0 0 10px rgba(255, 42, 42, 0.7);
-  letter-spacing: 2px;
-}
-
-.skipButton {
-  margin-top: 30px;
-  padding: 15px 30px;
+.skipTextButton {
   background: transparent;
-  color: #0f0;
-  border: 1px solid #0f0;
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 8px 18px;
+  border-radius: 6px;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.82rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.skipTextButton:hover {
+  background: rgba(148, 163, 184, 0.1);
+  color: #f1f5f9;
+  border-color: #f1f5f9;
+}
+
+.startQuestButton {
+  position: relative;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.25) 0%, rgba(37, 99, 235, 0.35) 100%);
+  color: #38bdf8;
+  border: 1px solid #38bdf8;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+  transition: all 0.3s ease;
+  animation: buttonEntry 0.5s ease-out forwards;
+}
+
+@keyframes buttonEntry {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.startQuestButton:hover {
+  background: #38bdf8;
+  color: #030712;
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.6);
+  transform: translateY(-2px);
+}
+
+.buttonPulse {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.startQuestButton:hover .buttonPulse {
+  opacity: 1;
+}
+
+/* Экран ошибки */
+.errorCard {
+  background: rgba(20, 8, 12, 0.85);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 0 40px rgba(244, 63, 94, 0.2);
+  backdrop-filter: blur(16px);
+  animation: modalFadeIn 0.4s ease-out;
+  z-index: 30;
+}
+
+.errorIcon {
+  font-size: 3rem;
+  color: #f43f5e;
+  margin-bottom: 15px;
+  text-shadow: 0 0 15px rgba(244, 63, 94, 0.6);
+}
+
+.errorTitle {
+  color: #f43f5e;
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  margin: 0 0 12px 0;
+}
+
+.errorDesc {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0 0 25px 0;
+}
+
+.retryButton {
+  background: transparent;
+  color: #f43f5e;
+  border: 1px solid #f43f5e;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.3s;
 }
 
-.skipButton:hover {
-  background: rgba(0, 255, 0, 0.1);
-  box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+.retryButton:hover {
+  background: #f43f5e;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.5);
+}
+
+/* Адаптация под смартфоны и планшеты */
+@media (max-width: 768px) {
+  .terminalContainer {
+    padding: 10px;
+  }
+
+  .terminalWindow {
+    height: 94vh;
+    border-radius: 10px;
+  }
+
+  .windowHeader {
+    padding: 0 12px;
+    height: 42px;
+  }
+
+  .windowTitle {
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+
+  .badgeGemini {
+    display: none; /* Скрываем второстепенный бейдж на узких экранах */
+  }
+
+  .windowBody {
+    padding: 16px 14px;
+  }
+
+  .terminalText {
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  .windowFooter {
+    padding: 12px 14px;
+    min-height: 60px;
+  }
+
+  .startQuestButton {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 0.78rem;
+    letter-spacing: 0.8px;
+    text-align: center;
+  }
+
+  .skipTextButton {
+    width: 100%;
+    text-align: center;
+    font-size: 0.75rem;
+  }
 }
