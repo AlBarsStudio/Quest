@@ -1,159 +1,497 @@
-.container {
+/* ===================================================
+   ЧАСТЬ 1: ФОН, СЕТКА, HUD ШАПКА, ТАЙМЕР И ПРОГРЕСС-БАР
+   =================================================== */
+
+.viewport {
   width: 100vw;
   height: 100vh;
-  background-color: #030303;
-  color: #fff;
-  font-family: 'Courier New', Courier, monospace;
+  background-color: #030712;
+  color: #f8fafc;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
   display: flex;
   flex-direction: column;
-  padding: 40px;
-  box-sizing: border-box;
-  overflow: hidden;
-  position: relative;
-  transition: transform 0.5s ease-in-out, background-color 0.1s;
-}
-
-/* Переворот на 180 градусов */
-.flipped {
-  transform: rotate(180deg);
-}
-
-.errorFlash {
-  background-color: #300000 !important;
-  box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.5);
-}
-
-.header {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #333;
-  padding-bottom: 20px;
-  margin-bottom: 40px;
-  font-size: 1.2rem;
-  letter-spacing: 2px;
-}
-
-.warning {
-  color: #ff2a2a;
-  text-shadow: 0 0 10px rgba(255, 42, 42, 0.7);
-  animation: pulseWarning 2s infinite;
-}
-
-@keyframes pulseWarning {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.timerContainer {
-  background: rgba(0, 255, 0, 0.1);
-  padding: 10px 30px;
-  border-radius: 8px;
-  border: 1px solid #0f0;
-  box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
-}
-
-.timer {
-  color: #0f0;
-  font-size: 2rem;
-  font-weight: bold;
-  text-shadow: 0 0 10px #0f0;
-}
-
-.timerDanger {
-  color: #ff2a2a;
-  text-shadow: 0 0 20px #ff0000;
-  animation: pulseWarning 1s infinite;
-  border-color: #ff2a2a;
-}
-
-.errorCount {
-  color: #ff2a2a;
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.textContainer {
-  flex-grow: 1;
-  font-size: 2.2rem;
-  line-height: 1.8;
-  text-align: justify;
-  text-transform: uppercase;
+  padding: 24px 32px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
   user-select: none;
 }
 
-.word {
-  margin-right: 15px;
-  display: inline-block;
-}
-
-.wordCompleted {
-  color: #0f0;
-}
-
-.wordCurrent {
-  border-bottom: 2px solid #0f0;
-}
-
-.wordPending {
-  letter-spacing: 2px;
-}
-
-/* Стили для отдельных букв внутри слов */
-.charPending {
-  color: rgba(255, 255, 255, 0.2); /* Буквы видно, но они блеклые */
-}
-
-.charTyped {
-  color: #0ff; 
-  text-shadow: 0 0 10px #0ff;
-}
-
-.charCompleted {
-  color: #0f0;
-  text-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
-}
-
-.instructions {
-  text-align: center;
-  color: #555;
-  font-size: 0.9rem;
-  margin-top: 20px;
-  border-top: 1px dashed #333;
-  padding-top: 20px;
-}
-
-/* Отвлекающие милые уведомления */
-.cuteNotification {
+/* Фоновая кибернетическая сетка и лучи */
+.gridBackground {
   position: absolute;
-  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-  color: #333;
-  padding: 10px 20px;
-  border-radius: 20px;
-  font-family: sans-serif;
-  font-weight: bold;
-  font-size: 1.2rem;
-  box-shadow: 0 5px 15px rgba(255, 154, 158, 0.6);
-  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 50% 30%, rgba(14, 165, 233, 0.1) 0%, transparent 65%),
+    linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
   pointer-events: none;
+  z-index: 1;
+}
+
+.scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    rgba(0, 0, 0, 0) 50%, 
+    rgba(0, 0, 0, 0.35) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0.6;
+}
+
+.mobileHiddenInput {
+  position: absolute;
+  opacity: 0;
+  top: -1000px;
+  left: -1000px;
+  pointer-events: none;
+}
+
+/* Верхняя панель HUD */
+.hudHeader {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 12px;
+  padding: 12px 24px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.leftMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statusBadge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #38bdf8;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pulseDot {
+  width: 8px;
+  height: 8px;
+  background-color: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #38bdf8;
+  animation: dotBlink 1.5s infinite;
+}
+
+@keyframes dotBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+
+.tierIndicator {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  letter-spacing: 1px;
+}
+
+.tierValue {
+  color: #fbbf24;
+  font-weight: bold;
+}
+
+/* Центральный таймер */
+.centerTimer {
+  display: flex;
+  justify-content: center;
+}
+
+.timerDisplay {
+  background: rgba(8, 12, 20, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 6px 20px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+  transition: all 0.3s;
+}
+
+.timerLabel {
+  font-size: 0.65rem;
+  color: #64748b;
+  letter-spacing: 1.5px;
+}
+
+.timerDigits {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.timerEmergency {
+  border-color: #f43f5e;
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+  animation: pulseEmergency 1s infinite;
+}
+
+.timerEmergency .timerDigits {
+  color: #f43f5e;
+  text-shadow: 0 0 15px rgba(244, 63, 94, 0.8);
+}
+
+@keyframes pulseEmergency {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+/* Правая часть статистики */
+.rightStats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.statBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.statLabel {
+  font-size: 0.65rem;
+  color: #64748b;
+  letter-spacing: 1px;
+}
+
+.statErrorValue {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #f43f5e;
+  text-shadow: 0 0 8px rgba(244, 63, 94, 0.5);
+}
+
+.skipButton {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.skipButton:hover {
+  color: #fff;
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+}
+
+/* Прогресс-бар */
+.progressBarWrapper {
+  position: relative;
+  z-index: 10;
+  height: 20px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 10px;
+  margin: 14px 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progressBarFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+  border-radius: 10px;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progressGlowLight {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 15px;
+  background: #ffffff;
+  filter: blur(4px);
+  opacity: 0.8;
+}
+
+.progressText {
+  position: relative;
+  z-index: 2;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: 2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+/* ===================================================
+   ЧАСТЬ 2: ТЕКСТОВАЯ МАТРИЦА, ТОСТЫ, АНИМАЦИИ И МОБИЛКИ
+   =================================================== */
+
+/* Плашка понижения сложности */
+.levelBanner {
+  position: absolute;
+  top: 130px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(244, 63, 94, 0.9);
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  box-shadow: 0 0 30px rgba(244, 63, 94, 0.6);
   z-index: 50;
-  text-transform: none;
+  animation: bannerPop 0.4s ease-out;
 }
 
-@keyframes popIn {
-  0% { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+@keyframes bannerPop {
+  0% { transform: translate(-50%, -20px); opacity: 0; }
+  100% { transform: translate(-50%, 0); opacity: 1; }
 }
 
-.glitchEffect {
-  animation: glitch-anim 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+/* Единый HUD-виджет уведомлений */
+.hudNotificationToast {
+  position: absolute;
+  top: 105px;
+  right: 32px;
+  width: 320px;
+  background: rgba(13, 20, 36, 0.92);
+  border: 1px solid rgba(244, 114, 182, 0.4);
+  border-radius: 10px;
+  padding: 14px 18px;
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(244, 114, 182, 0.2);
+  backdrop-filter: blur(20px);
+  z-index: 40;
+  animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes glitch-anim {
-  0% { transform: translate(0) }
-  20% { transform: translate(-2px, 2px) }
-  40% { transform: translate(-2px, -2px) }
-  60% { transform: translate(2px, 2px) }
-  80% { transform: translate(2px, -2px) }
-  100% { transform: translate(0) }
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(-15px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.toastHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #f472b6;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.toastIcon {
+  font-size: 0.9rem;
+}
+
+.toastBody {
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #fdf2f8;
+  font-weight: 500;
+}
+
+.toastLine {
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, #f472b6, transparent);
+  margin-top: 10px;
+  border-radius: 1px;
+}
+
+/* Контейнер текста */
+.typingContainer {
+  flex: 1;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 15px 0;
+}
+
+.terminalFrame {
+  width: 100%;
+  max-width: 1100px;
+  background: rgba(8, 12, 22, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 14px;
+  padding: 36px 44px;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+}
+
+.wordsMatrix {
+  display: flex;
+  flex-wrap: wrap;
+  line-height: 2.2;
+  font-size: 1.7rem;
+  letter-spacing: 1.5px;
+  text-align: left;
+}
+
+.wordBlock {
+  display: inline-flex;
+  margin-right: 18px;
+  margin-bottom: 8px;
+  padding: 0 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.wordActive {
+  background: rgba(56, 189, 248, 0.08);
+  border-bottom: 2px solid #38bdf8;
+}
+
+.wordDone {
+  opacity: 0.9;
+}
+
+/* Состояния букв */
+.charSpan {
+  position: relative;
+  transition: color 0.15s;
+}
+
+.charPending {
+  color: rgba(226, 232, 240, 0.35); /* Четко читаемый исходный текст */
+}
+
+.charSuccess {
+  color: #4ade80;
+  text-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+}
+
+.charCurrentCaret {
+  color: #38bdf8;
+  text-shadow: 0 0 10px #38bdf8;
+  background: rgba(56, 189, 248, 0.25);
+  border-radius: 2px;
+  animation: pulseCaret 0.8s infinite;
+}
+
+@keyframes pulseCaret {
+  0%, 100% { background: rgba(56, 189, 248, 0.35); }
+  50% { background: rgba(56, 189, 248, 0.1); }
+}
+
+/* Футер */
+.hudFooter {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.keyboardTip {
+  font-size: 0.75rem;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+/* Эффекты ошибок и глитча */
+.screenErrorShake {
+  animation: shakeScreen 0.25s cubic-bezier(.36,.07,.19,.97) both;
+  background-color: #1a080c !important;
+}
+
+@keyframes shakeScreen {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(4px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+.screenGlitch {
+  animation: glitchAnim 0.25s infinite;
+}
+
+@keyframes glitchAnim {
+  0% { transform: translate(0); }
+  20% { transform: translate(-3px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(3px, 1px); }
+  80% { transform: translate(1px, -2px); }
+  100% { transform: translate(0); }
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .viewport {
+    padding: 12px 14px;
+  }
+
+  .hudHeader {
+    padding: 10px 14px;
+  }
+
+  .statusBadge {
+    font-size: 0.68rem;
+  }
+
+  .tierIndicator {
+    font-size: 0.65rem;
+  }
+
+  .timerDigits {
+    font-size: 1.3rem;
+  }
+
+  .statErrorValue {
+    font-size: 1.1rem;
+  }
+
+  .hudNotificationToast {
+    top: 70px;
+    right: 14px;
+    left: 14px;
+    width: auto;
+  }
+
+  .terminalFrame {
+    padding: 18px 16px;
+  }
+
+  .wordsMatrix {
+    font-size: 1.15rem;
+    line-height: 1.8;
+  }
+
+  .wordBlock {
+    margin-right: 8px;
+  }
 }
