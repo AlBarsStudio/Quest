@@ -1,127 +1,114 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styles from './Level2Captcha.module.css';
 
-const wrongFaceMessages = [
-  "Серьезно, Настя? Мужа не узнала?", "Какой позор, Анастасия.", "Я начинаю сомневаться в нашей любви.",
-  "Ошибка 404: Вкус не найден.", "Этот парень, конечно, ничего, но я лучше.", "Ты сейчас кликнула на левого мужика. Записал в базу данных.",
-  "Сердце.exe завершило работу непредвиденно.", "Минус 10 баллов Гриффиндору... то есть Насте.", "А мы точно с 9 июня встречаемся?",
-  "Требую перерасчет уровня симпатии!", "Администратор Саша разочарован.", "Очки похожи, но любовь-то не обманешь!",
-  "Выбрана неверная модель парня.", "Запрос отклонен. Причина: измена в цифровом виде.", "Система фиксирует микро-инфаркт.",
-  "Это кто вообще такой?!", "Попытка взлома биометрии чужим лицом.", "Настя, соберись!", "Это фиаско. Просто фиаско.",
-  "Штраф: 50 дополнительных поцелуев.", "Надеюсь, ты просто промахнулась курсором.", "Скажи честно, он тебе больше нравится?",
-  "Калибровка чувств сбита. Требуется перезагрузка.", "Несанкционированный клик по чужому профилю.", "Внимание: обнаружен сбой в матрице.",
-  "Этот даже не знает, когда мы начали встречаться.", "А ведь я тебе доверял доступ к серверу...", "Ошибка аутентификации: чужой мужик.",
-  "Пользователь Настя переведена в режим подозреваемой.", "Может, тебе еще раз фотку мою показать?", "Я вызываю полицию нравов!",
-  "Доступ запрещен. Иди обними оригинал."
+// Стабильные качественные изображения с Unsplash
+const INITIAL_TILES = [
+  { id: 1, url: 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=400&q=80', isTarget: true, title: 'Кот спит' },
+  { id: 2, url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80', isTarget: false, title: 'Микросхема' },
+  { id: 3, url: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=400&q=80', isTarget: true, title: 'Собачка' },
+  { id: 4, url: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=400&q=80', isTarget: true, title: 'Милый котик' },
+  { id: 5, url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80', isTarget: false, title: 'Матрица/Код' },
+  { id: 6, url: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=400&q=80', isTarget: true, title: 'Щенок' },
+  { id: 7, url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=400&q=80', isTarget: false, title: 'Терминал' },
+  { id: 8, url: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=400&q=80', isTarget: true, title: 'Мопс' },
+  { id: 9, url: 'https://images.unsplash.com/photo-1516116211227-bbc13c7a9561?auto=format&fit=crop&w=400&q=80', isTarget: false, title: 'Серверная' }
 ];
 
-const SECRET_CODE = "nb vq vbq, nb vjt dct";
-
-export default function Level2Captcha({ onNext }) {
-  const [cards, setCards] = useState([]);
-  const [wrongMessage, setWrongMessage] = useState("");
-  const [showInput, setShowInput] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const [wrongAttempts, setWrongAttempts] = useState(0);
+export default function Level2Captcha({ onNext, onSkip }) {
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
-  useEffect(() => {
-    // Генерация массива карточек (1 правильная, 8 неправильных)
-    // Замени пути к картинкам на свои реальные ассеты!
-    let initialCards = [
-      { id: 'sasha', img: '/assets/sasha.jpg', isFlipped: false },
-      ...Array.from({ length: 8 }).map((_, i) => ({
-        id: `other_${i}`, img: `/assets/other${i + 1}.jpg`, isFlipped: false
-      }))
-    ];
-    setCards(initialCards.sort(() => Math.random() - 0.5));
-  }, []);
-
-  const handleCardClick = (id) => {
-    if (id === 'sasha') {
-      // Переворачиваем все рубашкой вверх и перемешиваем
-      setCards(prev => prev.map(c => ({ ...c, isFlipped: true })).sort(() => Math.random() - 0.5));
-      setTimeout(() => {
-        setCards(prev => prev.map(c => ({ ...c, isFlipped: false })));
-      }, 500);
-    } else {
-      setWrongMessage(wrongFaceMessages[Math.floor(Math.random() * wrongFaceMessages.length)]);
-    }
-  };
-
-  const handleAudioClick = () => {
-    // В идеале тут запускается аудиофайл, пока просто открываем поле
-    setShowInput(true);
-  };
-
-  const handleCodeSubmit = (e) => {
-    e.preventDefault();
-    if (inputValue.toLowerCase() === SECRET_CODE) {
-      setIsSuccess(true);
-      setTimeout(onNext, 3000);
-    } else {
-      setWrongAttempts(prev => prev + 1);
-      setInputValue("");
-    }
-  };
-
-  if (isSuccess) {
-    return (
-      <div className={styles.successScreen}>
-        <div className={styles.terminalText}>
-          Код nb vq vbq, nb vjt dct принят.<br/><br/>
-          Дешифровка: [ТЫ МОЙ МИР, ТЫ МОЕ ВСЕ].<br/><br/>
-          Авторизация подтверждена.
-        </div>
-      </div>
+  const toggleTile = (id) => {
+    if (isVerifying || isSuccess) return;
+    setErrorMessage('');
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
-  }
+  };
+
+  const handleVerify = () => {
+    setIsVerifying(true);
+    setErrorMessage('');
+
+    // Имитация невыносимо долгой проверки Google Captcha
+    setTimeout(() => {
+      const targetIds = INITIAL_TILES.filter(t => t.isTarget).map(t => t.id);
+      const isCorrect = 
+        targetIds.every(id => selectedIds.includes(id)) && 
+        selectedIds.length === targetIds.length;
+
+      if (isCorrect) {
+        setIsSuccess(true);
+        setTimeout(() => {
+          onNext();
+        }, 1500);
+      } else {
+        setIsVerifying(false);
+        setErrorMessage('ОШИБКА: Обнаружен дефицит пушистости в выбранных секторах. Попробуйте снова.');
+      }
+    }, 2200);
+  };
 
   return (
-    <div className={styles.container}>
-      <p className={styles.title}>Выберите все фрагменты, содержащие идеального парня</p>
-      
-      {wrongMessage && <div className={styles.alert}>{wrongMessage}</div>}
+    <div className={styles.levelWrapper}>
+      <button className={styles.skipBtn} onClick={onSkip}>
+        ПРОПУСТИТЬ УРОВЕНЬ ⏭
+      </button>
 
-      <div className={styles.grid}>
-        {cards.map((card, i) => (
-          <div 
-            key={i} 
-            className={`${styles.card} ${card.isFlipped ? styles.flipped : ''}`}
-            onClick={() => handleCardClick(card.id)}
-          >
-            <div className={styles.cardInner}>
-              <div className={styles.cardFront} style={{ backgroundImage: `url(${card.img})` }}>
-                 {/* Заглушка, если нет картинок */}
-                 {!card.img.includes('assets') && (card.id === 'sasha' ? 'САША' : 'НЕ САША')}
+      <div className={`${styles.captchaModal} ${isSuccess ? styles.modalSuccess : ''}`}>
+        <div className={styles.modalHeader}>
+          <div className={styles.headerBadge}>HeartOS Security // Stage 2 of 5</div>
+          <h3 className={styles.headerTitle}>
+            Выберите все изображения, где есть <span className={styles.highlight}>ДОМАШНИЕ ПИТОМЦЫ</span>
+          </h3>
+          <p className={styles.headerSubtitle}>
+            Если на фото сервер, код или микросхемы — не нажимайте на них.
+          </p>
+        </div>
+
+        <div className={styles.gridContainer}>
+          {INITIAL_TILES.map((tile) => {
+            const isSelected = selectedIds.includes(tile.id);
+            return (
+              <div 
+                key={tile.id}
+                className={`${styles.tile} ${isSelected ? styles.tileSelected : ''}`}
+                onClick={() => toggleTile(tile.id)}
+              >
+                <img src={tile.url} alt={tile.title} className={styles.tileImage} />
+                {isSelected && (
+                  <div className={styles.checkmarkBadge}>
+                    <div className={styles.checkmarkCircle}>✓</div>
+                  </div>
+                )}
+                <div className={styles.tileOverlay}></div>
               </div>
-              <div className={styles.cardBack}></div>
-            </div>
+            );
+          })}
+        </div>
+
+        {errorMessage && (
+          <div className={styles.errorAlert}>
+            ⚠️ {errorMessage}
           </div>
-        ))}
-      </div>
+        )}
 
-      <div className={styles.footer}>
-        <button className={styles.audioBtn} onClick={handleAudioClick}>🔊</button>
-        <button className={styles.verifyBtn} disabled>Подтвердить</button>
-      </div>
+        <div className={styles.modalFooter}>
+          <div className={styles.counter}>
+            Выбрано: <strong>{selectedIds.length}</strong> / 5
+          </div>
 
-      {showInput && (
-        <form onSubmit={handleCodeSubmit} className={styles.codeForm}>
-          <input 
-            type="text" 
-            value={inputValue} 
-            onChange={e => setInputValue(e.target.value)} 
-            placeholder="Введите кодовое слово"
-            className={styles.codeInput}
-          />
-          {wrongAttempts >= 3 && (
-            <div className={styles.hint}>
-              Внимание. Цифровой ключ утерян. Физическая резервная копия спрятана там, где природа встретилась с твоими руками. Ищи среди того, что никогда не завянет, как и моя любовь к тебе.
-            </div>
-          )}
-        </form>
-      )}
+          <button 
+            className={`${styles.verifyBtn} ${isVerifying ? styles.btnLoading : ''}`}
+            onClick={handleVerify}
+            disabled={selectedIds.length === 0 || isVerifying || isSuccess}
+          >
+            {isSuccess ? 'ВЕРИФИЦИРОВАНО ✓' : isVerifying ? 'АНАЛИЗ СЕТИ...' : 'ПОДТВЕРДИТЬ'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
