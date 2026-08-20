@@ -1,3 +1,4 @@
+/* ОБЩИЙ КОНТЕЙНЕР */
 .levelWrapper {
   width: 100%;
   height: 100%;
@@ -6,6 +7,8 @@
   align-items: center;
   position: relative;
   padding: 20px;
+  box-sizing: border-box;
+  outline: none;
 }
 
 .skipBtn {
@@ -13,8 +16,8 @@
   top: 24px;
   right: 24px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px dashed rgba(255, 255, 255, 0.3);
-  color: #e2e8f0;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  color: #94a3b8;
   padding: 8px 16px;
   border-radius: 6px;
   font-family: inherit;
@@ -30,194 +33,441 @@
   background: rgba(244, 63, 94, 0.2);
   border-color: #f43f5e;
   color: #fff;
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
 }
 
-.captchaModal {
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.75), inset 0 0 30px rgba(56, 189, 248, 0.05);
-  backdrop-filter: blur(24px);
-  border-radius: 16px;
+/* ГЛАВНАЯ СТЕКЛЯННАЯ КАРТОЧКА */
+.mainCard {
+  background: rgba(13, 19, 33, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 30px 60px -12px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 0 30px rgba(56, 189, 248, 0.04);
+  backdrop-filter: blur(32px) saturate(190%);
+  border-radius: 24px;
   width: 100%;
-  max-width: 440px;
-  padding: 24px;
+  max-width: 660px;
+  overflow: hidden;
+  animation: cardSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
   box-sizing: border-box;
-  animation: modalPop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  transition: border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
-.modalSuccess {
-  border-color: #22c55e !important;
-  box-shadow: 0 0 40px rgba(34, 197, 94, 0.4) !important;
+/* ШАПКА КАРТОЧКИ */
+.cardHeader {
+  background: rgba(3, 7, 18, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.modalHeader {
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  margin: -24px -24px 20px -24px;
-  padding: 20px;
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-  color: #fff;
+.stageTag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.headerBadge {
-  font-size: 0.65rem;
-  text-transform: uppercase;
+.stageNumber {
+  color: #38bdf8;
+  font-weight: 800;
+  font-size: 0.85rem;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.stageLabel {
+  color: #cbd5e1;
+  font-size: 0.75rem;
   letter-spacing: 1.5px;
-  opacity: 0.8;
-  margin-bottom: 6px;
-}
-
-.headerTitle {
-  margin: 0 0 6px 0;
-  font-size: 1.1rem;
   font-weight: 600;
-  line-height: 1.3;
 }
 
-.highlight {
+.aiStatusBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  color: #38bdf8;
+  letter-spacing: 1px;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  background: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #38bdf8;
+  animation: pulseDot 1.5s infinite;
+}
+
+/* ТЕЛО КАРТОЧКИ */
+.contentBody {
+  padding: 36px 36px 32px 36px;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.titleSuccess {
+  font-size: 1.6rem;
+  color: #22c55e;
+  margin: 0 0 12px 0;
+}
+
+.description {
+  color: #94a3b8;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  margin: 0 0 24px 0;
+}
+
+/* БЭЙДЖИ */
+.badgeWarn {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.badgeStage {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.badgeCritical {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* ФАЗА 1: ГОЛОГРАММА ВОДЫ И ТАЙМЕР */
+.waterHologram {
+  margin: 18px auto 24px auto;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glassCup {
+  width: 70px;
+  height: 80px;
+  border: 2px solid rgba(56, 189, 248, 0.5);
+  border-radius: 0 0 16px 16px;
+  position: relative;
+  overflow: hidden;
+  background: rgba(56, 189, 248, 0.05);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.waterLiquid {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65%;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.6) 0%, rgba(2, 132, 199, 0.8) 100%);
+  animation: waveMotion 3s ease-in-out infinite alternate;
+}
+
+.cupEmoji {
+  font-size: 2rem;
+  position: relative;
+  z-index: 2;
+  animation: floatEmoji 2s infinite ease-in-out;
+}
+
+.dialogueBox {
+  background: rgba(0, 0, 0, 0.5);
+  border-left: 3px solid #38bdf8;
+  padding: 16px 20px;
+  border-radius: 0 10px 10px 0;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.tabPenaltyAlert {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  animation: shake 0.4s ease;
+}
+
+.cooldownContainer {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.cooldownValue {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.cooldownValue strong {
+  color: #38bdf8;
+  font-size: 1.3rem;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #0284c7);
+  box-shadow: 0 0 12px #38bdf8;
+  transition: width 1s linear;
+}
+
+.hintMuted {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+/* ФАЗА 2: ДОПРОС */
+.questionText {
+  font-size: 1.05rem;
+  color: #e2e8f0;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.questionText em {
   color: #fef08a;
+  font-style: normal;
   text-decoration: underline;
   text-underline-offset: 4px;
 }
 
-.headerSubtitle {
-  margin: 0;
-  font-size: 0.75rem;
-  opacity: 0.9;
+.quizList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-.gridContainer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.quizBtn {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.quizBtn:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: #38bdf8;
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.quizBtnSelected {
+  border-color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.18) !important;
+}
+
+.optLetter {
+  background: rgba(255, 255, 255, 0.1);
+  color: #38bdf8;
+  font-weight: 800;
+  font-size: 0.75rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.feedbackCard {
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: left;
+  animation: fadeIn 0.3s ease;
+}
+
+.feedbackError {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+}
+
+.feedbackSuccess {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid #22c55e;
+  color: #86efac;
+}
+
+/* ФАЗА 3: КЛАВИАТУРНЫЙ ВВОД */
+.targetDisplay {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+}
+
+.targetText {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.terminalInputBox {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  box-shadow: inset 0 0 20px rgba(244, 63, 94, 0.15);
+  border-radius: 10px;
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 0.95rem;
+  color: #fff;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 16px;
 }
 
-.tile {
-  position: relative;
-  aspect-ratio: 1;
+.inputPrefix {
+  color: #f43f5e;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.typedValue {
+  color: #38bdf8;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.cursorBlink {
+  color: #f43f5e;
+  font-weight: bold;
+  animation: blink 0.8s infinite;
+}
+
+.backspacePopup {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  padding: 10px 14px;
   border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease;
+  font-size: 0.78rem;
+  margin-bottom: 16px;
+  animation: shake 0.3s ease;
 }
 
-.tile:hover {
-  transform: scale(0.97);
+.statsRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #64748b;
 }
 
-.tileSelected {
-  border-color: #38bdf8;
-  transform: scale(0.93) !important;
-}
-
-.tileImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.tileOverlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(56, 189, 248, 0);
-  transition: background 0.2s ease;
-}
-
-.tileSelected .tileOverlay {
-  background: rgba(56, 189, 248, 0.25);
-}
-
-.checkmarkBadge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  z-index: 10;
-  animation: checkPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.checkmarkCircle {
-  width: 22px;
-  height: 22px;
-  background: #0284c7;
+/* УСПЕХ */
+.successGlyph {
+  width: 60px;
+  height: 60px;
+  background: #22c55e;
   color: #fff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: 2rem;
   font-weight: bold;
-  box-shadow: 0 0 10px rgba(2, 132, 199, 0.8);
+  margin: 0 auto 20px auto;
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
 }
 
-.errorAlert {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid #ef4444;
-  color: #fca5a5;
-  font-size: 0.75rem;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 16px;
-  line-height: 1.4;
-  animation: shake 0.4s ease;
+/* АНИМАЦИИ */
+@keyframes cardSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.modalFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+@keyframes waveMotion {
+  0% { transform: translateY(2px) rotate(1deg); }
+  100% { transform: translateY(-2px) rotate(-1deg); }
 }
 
-.counter {
-  font-size: 0.8rem;
-  color: #94a3b8;
+@keyframes floatEmoji {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
-.counter strong {
-  color: #38bdf8;
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
-.verifyBtn {
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  border: none;
-  color: #fff;
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  letter-spacing: 1px;
-  transition: all 0.2s ease;
-}
-
-.verifyBtn:hover:not(:disabled) {
-  box-shadow: 0 0 15px rgba(2, 132, 199, 0.6);
-  transform: translateY(-1px);
-}
-
-.verifyBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btnLoading {
-  animation: pulseBtn 1s infinite alternate;
-}
-
-@keyframes checkPop {
-  0% { transform: scale(0); }
-  100% { transform: scale(1); }
-}
-
-@keyframes modalPop {
-  0% { opacity: 0; transform: scale(0.92); }
-  100% { opacity: 1; transform: scale(1); }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 @keyframes shake {
@@ -226,7 +476,15 @@
   75% { transform: translateX(6px); }
 }
 
-@keyframes pulseBtn {
-  from { opacity: 0.7; }
-  to { opacity: 1; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 640px) {
+  .mainCard { max-width: 95%; }
+  .contentBody { padding: 24px 18px; }
+  .title { font-size: 1.3rem; }
+  .quizBtn { font-size: 0.78rem; padding: 12px 14px; }
 }
