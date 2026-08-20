@@ -1,9 +1,12 @@
 .systemWrapper {
   width: 100vw;
   height: 100vh;
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  font-family: var(--font-mono);
+  background-color: #030712;
+  background-image: 
+    radial-gradient(at 50% 0%, rgba(244, 63, 94, 0.15) 0px, transparent 60%),
+    radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.08) 0px, transparent 50%);
+  color: #f3f4f6;
+  font-family: 'JetBrains Mono', monospace;
   position: relative;
   display: flex;
   justify-content: center;
@@ -13,46 +16,251 @@
 
 .scanlines {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 0),
     rgba(255, 255, 255, 0) 50%,
-    rgba(0, 0, 0, 0.25) 50%,
-    rgba(0, 0, 0, 0.25)
+    rgba(0, 0, 0, 0.35) 50%,
+    rgba(0, 0, 0, 0.35)
   );
   background-size: 100% 4px;
   pointer-events: none;
-  z-index: 50;
+  z-index: 40;
 }
 
-.levelContainer {
-  position: relative;
-  z-index: 10;
-  width: 100%;
+.vignette {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+  z-index: 41;
+}
+
+.dashboardExitBtn {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+}
+
+.dashboardExitBtn:hover {
+  color: #fff;
+  border-color: #f43f5e;
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.3);
+}
+
+/* ИНТРО: СЛОТ */
+.introContainer {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  gap: 32px;
+  z-index: 10;
+  max-width: 540px;
+  width: 90%;
+  animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.placeholder {
+.hologramSocket {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heartArtifact {
+  font-size: 4rem;
+  filter: drop-shadow(0 0 25px rgba(244, 63, 94, 0.8));
+  animation: floatHeart 2.5s ease-in-out infinite alternate;
+  z-index: 2;
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+.heartInjecting {
+  animation: injectAnim 1.8s forwards;
+}
+
+.socketRing {
+  position: absolute;
+  inset: 0;
+  border: 2px dashed rgba(244, 63, 94, 0.5);
+  border-radius: 50%;
+  animation: rotateRing 10s linear infinite;
+}
+
+.introCard {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(244, 63, 94, 0.08);
+  backdrop-filter: blur(16px);
+  padding: 32px;
+  border-radius: 16px;
   text-align: center;
 }
 
-.returnBtn {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background: transparent;
-  color: var(--accent-color);
-  border: 1px solid var(--accent-color);
-  font-family: var(--font-mono);
+.cardBadge {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: #f43f5e;
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  background: rgba(244, 63, 94, 0.1);
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 1.5px;
+  margin-bottom: 16px;
+}
+
+.introTitle {
+  font-size: 1.7rem;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.introDesc {
+  color: #94a3b8;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.injectButton {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
   cursor: pointer;
+  box-shadow: 0 0 25px rgba(244, 63, 94, 0.4);
   transition: all 0.3s ease;
 }
 
-.returnBtn:hover {
-  background: var(--accent-glow);
+.injectButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(244, 63, 94, 0.7);
+}
+
+.injectButton:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* СБОЙ И ТРЕВОГА */
+.alarmOverlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(220, 38, 38, 0.3) 0%, rgba(3, 7, 18, 0.95) 80%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: alarmPulse 0.6s infinite alternate;
+}
+
+.alarmGlitchBox {
+  background: rgba(15, 0, 0, 0.9);
+  border: 2px solid #ef4444;
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.5);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  text-align: left;
+}
+
+.alarmTag {
+  color: #ef4444;
+  font-size: 0.8rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.alarmHeading {
+  color: #fff;
+  font-size: 1.5rem;
+  margin: 10px 0 16px 0;
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+}
+
+.alarmLog {
+  color: #fca5a5;
+  font-size: 0.85rem;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 12px;
+  border-left: 3px solid #ef4444;
+}
+
+.alarmProgress {
+  width: 100%;
+  height: 4px;
+  background: rgba(239, 68, 68, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.alarmProgressBar {
+  height: 100%;
+  background: #ef4444;
+  width: 0%;
+  animation: fillProgress 3.5s linear forwards;
+}
+
+.levelContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+@keyframes floatHeart {
+  from { transform: translateY(-6px) scale(0.98); }
+  to { transform: translateY(6px) scale(1.04); }
+}
+
+@keyframes rotateRing {
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes injectAnim {
+  0% { transform: scale(1); filter: drop-shadow(0 0 20px #f43f5e); }
+  50% { transform: scale(1.4) rotate(15deg); filter: drop-shadow(0 0 50px #fff); }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+@keyframes alarmPulse {
+  from { background-color: rgba(220, 38, 38, 0.15); }
+  to { background-color: rgba(220, 38, 38, 0.35); }
+}
+
+@keyframes fillProgress {
+  to { width: 100%; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
