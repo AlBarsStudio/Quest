@@ -1,117 +1,257 @@
-.container {
-  max-width: 650px;
-  width: 90%;
-  padding: 30px;
-  border: 1px solid var(--text-muted);
-  background: rgba(5, 5, 5, 0.9);
-  position: relative;
-  min-height: 250px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-.bureaucracyText {
-  font-size: 1rem;
-  margin-bottom: 30px;
-  line-height: 1.6;
-  color: var(--text-muted);
-}
-
-.captchaWrapper {
+.levelWrapper {
+  width: 100%;
+  height: 100%;
   display: flex;
-  align-items: center;
-  gap: 15px;
-  background: #f0f0f0;
-  padding: 15px 25px;
-  border-radius: 4px;
-  width: fit-content;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-}
-
-.captchaLabel {
-  color: #1a1a1a;
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.boxesContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  width: 28px;
-  height: 28px;
   justify-content: center;
   align-items: center;
+  position: relative;
+  padding: 20px;
+  touch-action: none;
+}
+
+.skipBtn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  color: #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+  z-index: 100;
+}
+
+.skipBtn:hover {
+  background: rgba(244, 63, 94, 0.2);
+  border-color: #f43f5e;
+  color: #fff;
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+}
+
+/* ОКНО КАПЧИ */
+.captchaWindow {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(56, 189, 248, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 580px;
+  overflow: hidden;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.windowHeader {
+  background: rgba(2, 6, 23, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.headerDots {
+  display: flex;
+  gap: 6px;
+}
+
+.dotRed, .dotYellow, .dotGreen {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dotRed { background-color: #ef4444; }
+.dotYellow { background-color: #eab308; }
+.dotGreen { background-color: #22c55e; }
+
+.headerTitle {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  letter-spacing: 1px;
+}
+
+.windowBody {
+  padding: 36px 32px 28px 32px;
+  text-align: center;
+}
+
+.badgeInfo {
+  display: inline-block;
+  font-size: 0.68rem;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: rgba(56, 189, 248, 0.1);
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 1.5px;
+  margin-bottom: 14px;
+}
+
+.mainTitle {
+  font-size: 1.5rem;
+  margin: 0 0 10px 0;
+  color: #fff;
+  font-weight: 600;
+}
+
+.subTitle {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin: 0 0 36px 0;
+}
+
+/* ЗОНА УБЕГАНИЯ */
+.captchaContainerArea {
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* КАСТОМНЫЙ БОКС RECAPTCHA */
+.reCaptchaBox {
+  background: #090d16;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 320px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  cursor: default;
+}
+
+.boxSuccess {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.3) !important;
 }
 
 .checkbox {
-  border: 2px solid #a0a0a0;
-  background: #fff;
+  width: 30px;
+  height: 30px;
+  background: #1e293b;
+  border: 2px solid #64748b;
+  border-radius: 4px;
   cursor: pointer;
-  border-radius: 2px;
-  transition: all 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
 }
 
 .checkbox:hover {
-  border-color: #555;
+  border-color: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
 }
 
-/* Фрактальное уменьшение квадратов */
-.boxesContainer[data-clicks="0"] .checkbox {
-  width: 28px;
-  height: 28px;
+.checked {
+  background: #22c55e !important;
+  border-color: #22c55e !important;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
 }
 
-.boxesContainer[data-clicks="1"] .checkbox {
-  width: 12px;
-  height: 12px;
-  border-width: 1px;
+.checkmarkIcon {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: bold;
 }
 
-.boxesContainer[data-clicks="2"] .checkbox {
-  width: 10px;
-  height: 10px;
-  border-width: 1px;
+.captchaLabel {
+  flex: 1;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #e2e8f0;
 }
 
-.boxesContainer[data-clicks="3"] .checkbox {
-  width: 5px;
-  height: 5px;
-  border-width: 1px;
-  border-radius: 0;
-}
-
-.secretText {
-  position: absolute;
-  bottom: 10px;
-  right: 15px;
-  font-size: 0.7rem;
-  color: #1a1a1a; /* Почти сливается с темным фоном */
-  cursor: pointer;
-  transition: color 0.3s ease;
-  font-family: var(--font-sans);
-}
-
-.secretText:hover {
-  color: var(--accent-color);
-}
-
-.successScreen {
+.reCaptchaLogo {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  width: 100%;
-  height: 100%;
+  opacity: 0.7;
 }
 
-.hugeCheckmark {
-  font-size: 12rem;
-  color: var(--accent-color);
-  animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  text-shadow: 0 0 20px var(--accent-glow);
+.logoIcon {
+  font-size: 1.1rem;
 }
 
-@keyframes popIn {
-  0% { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+.logoText {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.55rem;
+  color: #64748b;
+}
+
+.statsBar {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.statsItem strong {
+  color: #38bdf8;
+}
+
+/* МОБИЛЬНЫЙ ВИРТУАЛЬНЫЙ КУРСОР */
+.virtualCursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 999;
+  transition: transform 0.05s linear;
+}
+
+.cursorPointer {
+  width: 14px;
+  height: 14px;
+  background: #f43f5e;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 15px #f43f5e;
+}
+
+.cursorLabel {
+  font-size: 0.55rem;
+  color: #f43f5e;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 2px 4px;
+  border-radius: 3px;
+  position: absolute;
+  left: 18px;
+  top: -2px;
+  white-space: nowrap;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .captchaWindow {
+    max-width: 95%;
+  }
+  .windowBody {
+    padding: 24px 16px 20px 16px;
+  }
+  .reCaptchaBox {
+    width: 270px;
+    padding: 12px 14px;
+  }
 }
