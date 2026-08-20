@@ -1,113 +1,295 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './Level2Captcha.module.css';
 
-// Стабильные качественные изображения с Unsplash
-const INITIAL_TILES = [
-  { id: 1, url: 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=400&q=80', isTarget: true, title: 'Кот спит' },
-  { id: 2, url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80', isTarget: false, title: 'Микросхема' },
-  { id: 3, url: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=400&q=80', isTarget: true, title: 'Собачка' },
-  { id: 4, url: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=400&q=80', isTarget: true, title: 'Милый котик' },
-  { id: 5, url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80', isTarget: false, title: 'Матрица/Код' },
-  { id: 6, url: 'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=400&q=80', isTarget: true, title: 'Щенок' },
-  { id: 7, url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=400&q=80', isTarget: false, title: 'Терминал' },
-  { id: 8, url: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=400&q=80', isTarget: true, title: 'Мопс' },
-  { id: 9, url: 'https://images.unsplash.com/photo-1516116211227-bbc13c7a9561?auto=format&fit=crop&w=400&q=80', isTarget: false, title: 'Серверная' }
-];
-
 export default function Level2Captcha({ onNext, onSkip }) {
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
+  // Подфазы: 'hydration' -> 'interrogation' -> 'keyboard_penalty' -> 'success'
+  const [subPhase, setSubPhase] = useState('hydration');
 
-  const toggleTile = (id) => {
-    if (isVerifying || isSuccess) return;
-    setErrorMessage('');
-    setSelectedIds(prev => 
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
-  };
+  // ФАЗА 1: БЫТОВАЯ ПАУЗА (ГИДРАТАЦИЯ)
+  const [waterTime, setWaterTime] = useState(35);
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [showTabPenalty, setShowTabPenalty] = useState(false);
 
-  const handleVerify = () => {
-    setIsVerifying(true);
-    setErrorMessage('');
+  // ФАЗА 2: ДОПРОС
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [interrogationFeedback, setInterrogationFeedback] = useState(null);
+  const [quizAttempts, setQuizAttempts] = useState(0);
 
-    // Имитация невыносимо долгой проверки Google Captcha
-    setTimeout(() => {
-      const targetIds = INITIAL_TILES.filter(t => t.isTarget).map(t => t.id);
-      const isCorrect = 
-        targetIds.every(id => selectedIds.includes(id)) && 
-        selectedIds.length === targetIds.length;
+  // ФАЗА 3: КЛАВИАТУРНЫЙ ШТРАФ
+  const TARGET_TEXT = "Саша самый гениальный разработчик и его спагетти код великолепен";
+  const [typedText, setTypedText] = useState("");
+  const [showBackspaceAlert, setShowBackspaceAlert] = useState(false);
+  const [keyGlitchCount, setKeyGlitchCount] = useState(0);
 
-      if (isCorrect) {
-        setIsSuccess(true);
-        setTimeout(() => {
-          onNext();
-        }, 1500);
-      } else {
-        setIsVerifying(false);
-        setErrorMessage('ОШИБКА: Обнаружен дефицит пушистости в выбранных секторах. Попробуйте снова.');
+  // -------------------------------------------------------------
+  // ФАЗА 1: ТАЙМЕР ГИДРАТАЦИИ И АНТИ-АЛЬТАБ (Page Visibility API)
+  // -------------------------------------------------------------
+  useEffect(() => {
+    if (subPhase !== 'hydration') return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setTabSwitchCount(prev => prev + 1);
+        setWaterTime(prev => prev + 15); // Штрафные секунды
+        setShowTabPenalty(true);
       }
-    }, 2200);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [subPhase]);
+
+  useEffect(() => {
+    if (subPhase !== 'hydration') return;
+
+    const timer = setInterval(() => {
+      setWaterTime(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setSubPhase('interrogation');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [subPhase]);
+
+  // -------------------------------------------------------------
+  // ФАЗА 2: ДОПРОС С ПОДВОХОМ
+  // -------------------------------------------------------------
+  const handleQuizSelect = (optionId) => {
+    setSelectedOption(optionId);
+    setQuizAttempts(prev => prev + 1);
+
+    if (optionId === 'A') {
+      setInterrogationFeedback({
+        status: 'error',
+        text: '«Это неприкрытая лесть! Точность 0%. Создатель никогда не укладывается в 5 минут. Попробуйте реалистичный вариант!»'
+      });
+    } else if (optionId === 'C' || optionId === 'D') {
+      setInterrogationFeedback({
+        status: 'error',
+        text: '«Фактически абсолютно верно, но протокол лояльности запрещает дискредитировать тайм-менеджмент разработчика! Штраф за правду.»'
+      });
+    } else if (optionId === 'B') {
+      setInterrogationFeedback({
+        status: 'success',
+        text: '«Приемлемый компромисс между правдой и субординацией. Ответ зафиксирован в протоколе.»'
+      });
+      setTimeout(() => {
+        setSubPhase('keyboard_penalty');
+      }, 2000);
+    }
   };
+
+  // -------------------------------------------------------------
+  // ФАЗА 3: ВВОД С АНТИ-BACKSPACE И ЭМОДЗИ-ГЛИТЧЕМ
+  // -------------------------------------------------------------
+  const handleKeyDown = (e) => {
+    if (subPhase !== 'keyboard_penalty') return;
+
+    if (e.key === 'Backspace') {
+      e.preventDefault();
+      setShowBackspaceAlert(true);
+      setTimeout(() => setShowBackspaceAlert(false), 1800);
+      return;
+    }
+
+    if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+      e.preventDefault();
+      const currentLen = typedText.length;
+
+      // Каждое 6-е нажатие вставляет эмодзи-глитч вместо символа
+      if ((currentLen + 1) % 6 === 0) {
+        const emojis = ['🦆', '☕', '❤️', '🦫', '⚡'];
+        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+        setTypedText(prev => prev + randomEmoji);
+        setKeyGlitchCount(prev => prev + 1);
+      } else {
+        const nextChar = TARGET_TEXT[currentLen] || e.key;
+        setTypedText(prev => prev + nextChar);
+      }
+    }
+  };
+
+  // Проверка готовности фразы
+  useEffect(() => {
+    if (subPhase !== 'keyboard_penalty') return;
+    if (typedText.length >= TARGET_TEXT.length) {
+      setSubPhase('success');
+      setTimeout(() => {
+        onNext();
+      }, 1800);
+    }
+  }, [typedText, subPhase, onNext]);
 
   return (
-    <div className={styles.levelWrapper}>
+    <div className={styles.levelWrapper} onKeyDown={handleKeyDown} tabIndex={0}>
+      {/* Кнопка пропуска для отладки */}
       <button className={styles.skipBtn} onClick={onSkip}>
-        ПРОПУСТИТЬ УРОВЕНЬ ⏭
+        ПРОПУСТИТЬ ЭТАП ⏭
       </button>
 
-      <div className={`${styles.captchaModal} ${isSuccess ? styles.modalSuccess : ''}`}>
-        <div className={styles.modalHeader}>
-          <div className={styles.headerBadge}>HeartOS Security // Stage 2 of 5</div>
-          <h3 className={styles.headerTitle}>
-            Выберите все изображения, где есть <span className={styles.highlight}>ДОМАШНИЕ ПИТОМЦЫ</span>
-          </h3>
-          <p className={styles.headerSubtitle}>
-            Если на фото сервер, код или микросхемы — не нажимайте на них.
-          </p>
+      <div className={styles.mainCard}>
+        {/* Хедер этапа */}
+        <div className={styles.cardHeader}>
+          <div className={styles.stageTag}>
+            <span className={styles.stageNumber}>02 / 05</span>
+            <span className={styles.stageLabel}>БЫТОВОЙ КАРАНТИН И ЛОЯЛЬНОСТЬ</span>
+          </div>
+          <div className={styles.aiStatusBadge}>
+            <span className={styles.statusDot}></span>
+            AI: HYDRATION_INSPECTION
+          </div>
         </div>
 
-        <div className={styles.gridContainer}>
-          {INITIAL_TILES.map((tile) => {
-            const isSelected = selectedIds.includes(tile.id);
-            return (
-              <div 
-                key={tile.id}
-                className={`${styles.tile} ${isSelected ? styles.tileSelected : ''}`}
-                onClick={() => toggleTile(tile.id)}
-              >
-                <img src={tile.url} alt={tile.title} className={styles.tileImage} />
-                {isSelected && (
-                  <div className={styles.checkmarkBadge}>
-                    <div className={styles.checkmarkCircle}>✓</div>
-                  </div>
-                )}
-                <div className={styles.tileOverlay}></div>
+        {/* ------------------------------------------------------------- */}
+        {/* ПОДФАЗА 1: ГИДРАТАЦИЯ И АНТИ-АЛЬТАБ                          */}
+        {/* ------------------------------------------------------------- */}
+        {subPhase === 'hydration' && (
+          <div className={styles.contentBody}>
+            <div className={styles.badgeWarn}>ОБЯЗАТЕЛЬНЫЙ ПЕРЕРЫВ</div>
+            <h2 className={styles.title}>Протокол поддержания организма</h2>
+            
+            <div className={styles.waterHologram}>
+              <div className={styles.glassCup}>
+                <div className={styles.waterLiquid}></div>
+                <span className={styles.cupEmoji}>💧</span>
               </div>
-            );
-          })}
-        </div>
+            </div>
 
-        {errorMessage && (
-          <div className={styles.errorAlert}>
-            ⚠️ {errorMessage}
+            <div className={styles.dialogueBox}>
+              <strong>HeartOS Daemon:</strong> «Анализ биометрии выявил дефицит влаги в организме оператора. 
+              Создатель категорически запретил продолжать аутентификацию без гидратации. 
+              Отойдите на кухню и сделайте 3 глотка воды. Переключение вкладок карается штрафом!»
+            </div>
+
+            {showTabPenalty && (
+              <div className={styles.tabPenaltyAlert}>
+                🚨 АГА! Зафиксирован уход со страницы (+15с к таймеру)! Вы листаете мемы вместо отдыха!
+              </div>
+            )}
+
+            <div className={styles.cooldownContainer}>
+              <div className={styles.cooldownValue}>
+                ОСТАЛОСЬ: <strong>{waterTime}с</strong>
+              </div>
+              <div className={styles.progressBar}>
+                <div 
+                  className={styles.progressFill}
+                  style={{ width: `${((35 - waterTime) / 35) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+
+            <div className={styles.hintMuted}>
+              * Фокус окна отслеживается в реальном времени. Переключений вкладок: {tabSwitchCount}
+            </div>
           </div>
         )}
 
-        <div className={styles.modalFooter}>
-          <div className={styles.counter}>
-            Выбрано: <strong>{selectedIds.length}</strong> / 5
-          </div>
+        {/* ------------------------------------------------------------- */}
+        {/* ПОДФАЗА 2: ДОПРОС О СОЗДАТЕЛЕ                                 */}
+        {/* ------------------------------------------------------------- */}
+        {subPhase === 'interrogation' && (
+          <div className={styles.contentBody}>
+            <div className={styles.badgeStage}>ТЕСТ НА ЗНАНИЕ РАЗРАБОТЧИКА</div>
+            <h2 className={styles.title}>Инквизиция Логики</h2>
+            <p className={styles.questionText}>
+              Вопрос №42: Сколько в реальности длятся Сашины <em>«ща 5 минут, билд докомпилируется и иду»</em>?
+            </p>
 
-          <button 
-            className={`${styles.verifyBtn} ${isVerifying ? styles.btnLoading : ''}`}
-            onClick={handleVerify}
-            disabled={selectedIds.length === 0 || isVerifying || isSuccess}
-          >
-            {isSuccess ? 'ВЕРИФИЦИРОВАНО ✓' : isVerifying ? 'АНАЛИЗ СЕТИ...' : 'ПОДТВЕРДИТЬ'}
-          </button>
-        </div>
+            <div className={styles.quizList}>
+              <button 
+                className={`${styles.quizBtn} ${selectedOption === 'A' ? styles.quizBtnSelected : ''}`}
+                onClick={() => handleQuizSelect('A')}
+              >
+                <span className={styles.optLetter}>A</span>
+                Ровно 5 минут (погрешность ±0.01с)
+              </button>
+
+              <button 
+                className={`${styles.quizBtn} ${selectedOption === 'B' ? styles.quizBtnSelected : ''}`}
+                onClick={() => handleQuizSelect('B')}
+              >
+                <span className={styles.optLetter}>B</span>
+                Около 40 минут с периодическим чаепитием
+              </button>
+
+              <button 
+                className={`${styles.quizBtn} ${selectedOption === 'C' ? styles.quizBtnSelected : ''}`}
+                onClick={() => handleQuizSelect('C')}
+              >
+                <span className={styles.optLetter}>C</span>
+                До рассвета следующего рабочего дня
+              </button>
+
+              <button 
+                className={`${styles.quizBtn} ${selectedOption === 'D' ? styles.quizBtnSelected : ''}`}
+                onClick={() => handleQuizSelect('D')}
+              >
+                <span className={styles.optLetter}>D</span>
+                «Я уже почти сохранил проект» (еще 3 часа)
+              </button>
+            </div>
+
+            {interrogationFeedback && (
+              <div className={`${styles.feedbackCard} ${interrogationFeedback.status === 'error' ? styles.feedbackError : styles.feedbackSuccess}`}>
+                {interrogationFeedback.text}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ------------------------------------------------------------- */}
+        {/* ПОДФАЗА 3: КЛАВИАТУРНЫЙ ШТРАФ                                 */}
+        {/* ------------------------------------------------------------- */}
+        {subPhase === 'keyboard_penalty' && (
+          <div className={styles.contentBody}>
+            <div className={styles.badgeCritical}>ПРИНУДИТЕЛЬНАЯ ВЕРИФИКАЦИЯ</div>
+            <h2 className={styles.title}>Генерация Дифирамба</h2>
+            <p className={styles.description}>
+              Нажимайте любые клавиши на клавиатуре, чтобы подтвердить непререкаемый авторитет создателя:
+            </p>
+
+            <div className={styles.targetDisplay}>
+              <span className={styles.targetText}>{TARGET_TEXT}</span>
+            </div>
+
+            <div className={styles.terminalInputBox}>
+              <span className={styles.inputPrefix}>anastasia@heart-os:~$</span>
+              <span className={styles.typedValue}>{typedText}</span>
+              <span className={styles.cursorBlink}>_</span>
+            </div>
+
+            {showBackspaceAlert && (
+              <div className={styles.backspacePopup}>
+                🛑 ОШИБКА: Backspace отключен! Стирать слова любви к разработчику запрещено протоколом!
+              </div>
+            )}
+
+            <div className={styles.statsRow}>
+              <span>Символов: {typedText.length} / {TARGET_TEXT.length}</span>
+              <span>Эмодзи-глитчей: {keyGlitchCount}</span>
+            </div>
+          </div>
+        )}
+
+        {/* ------------------------------------------------------------- */}
+        {/* УСПЕХ ЭТАПА 2                                                 */}
+        {/* ------------------------------------------------------------- */}
+        {subPhase === 'success' && (
+          <div className={styles.contentBody}>
+            <div className={styles.successGlyph}>✓</div>
+            <h2 className={styles.titleSuccess}>ЛОЯЛЬНОСТЬ ДОКАЗАНА</h2>
+            <p className={styles.description}>
+              Организм гидратирован. Комплименты зафиксированы в системных логах ядра. 
+              Переход к политике файлов Cookie...
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
