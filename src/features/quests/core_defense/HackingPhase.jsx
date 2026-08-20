@@ -7,11 +7,8 @@ const TEXT_TIERS = {
   3: "Экстренное кибермяу! Я перехватила управление и навожу тут порядок. Никакие хакеры не испортят то, что Саша создавал с любовью! Моя улыбка ломает ваши алгоритмы, щиты подняты на максимум, а ядро спасено самой прекрасной девушкой во вселенной!"
 };
 
-const TIMER_PER_TIER = {
-  1: 120, // 2 минуты на 1 уровень
-  2: 90,  // 1.5 минуты на 2 уровень
-  3: 75   // 1.15 минуты на 3 уровень
-};
+const DURATION_SECONDS = 180; // 3 минуты на каждый уровень
+const STORAGE_KEY = 'albars_hacking_progress_v2';
 
 const NOTIFICATIONS_POOL = [
   "Ты лучшая хакерша в мире! ✨",
@@ -51,41 +48,72 @@ const NOTIFICATIONS_POOL = [
   "ALBARS_CORE официально спасён тобой 🏰"
 ];
 
-export default function HackingPhase({ onComplete }) {
-  const [tier, setTier] = useState(1);
-  const [words, setWords] = useState([]);
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
+const parseWords = (text) => {
+  return text
+    .toLowerCase()
+    .replace(/[^а-яё ]/g, '')
+    .split(/\s+/)
+    .filter(w => w.length > 0);
+};
 
-  const [timeLeft, setTimeLeft] = useState(TIMER_PER_TIER[1]);
-  const [errors, setErrors] = useState(0);
-  const [totalTypedChars, setTotalTypedChars] = useState(0);
+export default function HackingPhase({ onComplete }) {
+  // 1. Проверка сохранения в LocalStorage (не старше 60 секунд)
+  const [savedData] = useState(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Date.now() - parsed.timestamp < 60000) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    localStorage.removeItem(STORAGE_KEY);
+    return null;
+  });
+
+  const [tier, setTier] = useState(() => savedData?.tier || 1);
+  const [words, setWords] = useState(() => parseWords(TEXT_TIERS[savedData?.tier || 1]));
+  const [currentWordIndex, setCurrentWordIndex] = useState(() => savedData?.currentWordIndex || 0);
+  const [currentLetterIndex, setCurrentLetterIndex] = useState(() => savedData?.currentLetterIndex || 0);
+  const [timeLeft, setTimeLeft] = useState(() => savedData?.timeLeft || DURATION_SECONDS);
+  const [errors, setErrors] = useState(() => savedData?.errors || 0);
+
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [hasFlippedThisTier, setHasFlippedThisTier] = useState(false);
   const [isGlitching, setIsGlitching] = useState(false);
   const [currentNotif, setCurrentNotif] = useState(null);
-  const [levelUpMessage, setLevelUpMessage] = useState(null);
+  const [tierChangeBanner, setTierChangeBanner] = useState(null);
+  
+  // Состояния для динамического интерактива
+  const [isTypingActive, setIsTypingActive] = useState(false);
+  const [hexDump, setHexDump] = useState('0x7F 0xA4 0x12 0xEE 0x90 0xBC');
 
   const mobileInputRef = useRef(null);
   const textScrollRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  const canvas3dRef = useRef(null);
 
-  // Инициализация слов выбранного уровня
+  // 2. Сохранение прогресса
   useEffect(() => {
-    const rawText = TEXT_TIERS[tier];
-    const cleanedWords = rawText
-      .toLowerCase()
-      .replace(/[^а-яё ]/g, '')
-      .split(/\s+/)
-      .filter(w => w.length > 0);
-
-    setWords(cleanedWords);
-    setCurrentWordIndex(0);
-    setCurrentLetterIndex(0);
-    setTimeLeft(TIMER_PER_TIER[tier]);
-  }, [tier]);
+    const dataToSave = {
+      tier,
+      currentWordIndex,
+      currentLetterIndex,
+      timeLeft,
+      errors,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+  }, [tier, currentWordIndex, currentLetterIndex, timeLeft, errors]);
 
   // Завершение квеста
   const handleFinish = useCallback((success) => {
-    let score = 1000 - (errors * 8);
-    score = Math.max(100, Math.min(1000, score));
+    localStorage.removeItem(STORAGE_KEY);
+    let score = 1000 - (errors * 5);
+    score = Math.max(150, Math.min(1000, score));
     onComplete({
       success,
       score,
@@ -94,34 +122,145 @@ export default function HackingPhase({ onComplete }) {
     });
   }, [errors, tier, onComplete]);
 
-  // Чит для пропуска в консоли и кнопкой
+  // Чит-код
   useEffect(() => {
     window.skipQuest = () => handleFinish(true);
     return () => { delete window.skipQuest; };
   }, [handleFinish]);
 
-  // Таймер и логика понижения сложности
+  // Переход на следующий уровень сложности
+  const advanceToNextTier = useCallback((nextTierNumber) => {
+    setTier(nextTierNumber);
+    setWords(parseWords(TEXT_TIERS[nextTierNumber]));
+    setCurrentWordIndex(0);
+    setCurrentLetterIndex(0);
+    setTimeLeft(DURATION_SECONDS);
+    setHasFlippedThisTier(false);
+    setIsFlipped(false);
+    setTierChangeBanner(`ВРЕМЯ ВЫШЛО! ПЕРЕХОД К УРОВНЮ ${nextTierNumber} ИЗ 3`);
+    setTimeout(() => setTierChangeBanner(null), 4000);
+  }, []);
+
+  // 3. Таймер, переворот экрана и смена уровней 1 -> 2 -> 3
   useEffect(() => {
     if (timeLeft <= 0) {
-      if (tier < 3) {
-        const nextTier = tier + 1;
-        setTier(nextTier);
-        setLevelUpMessage(`ВРЕМЯ ИСТЕКЛО! ПОНИЖЕНИЕ СЛОЖНОСТИ ДО УРОВНЯ ${nextTier}`);
-        setTimeout(() => setLevelUpMessage(null), 3000);
+      if (tier === 1) {
+        advanceToNextTier(2);
+      } else if (tier === 2) {
+        advanceToNextTier(3);
       } else {
         handleFinish(false);
       }
       return;
     }
 
-    const timerInterval = setInterval(() => {
+    // Переворот экрана на 60 секунде ровно на 5 секунд
+    if (timeLeft === 60 && !hasFlippedThisTier) {
+      setIsFlipped(true);
+      setHasFlippedThisTier(true);
+      setTimeout(() => {
+        setIsFlipped(false);
+      }, 5000);
+    }
+
+    const timer = setInterval(() => {
       setTimeLeft(prev => prev - 1);
     }, 1000);
 
-    return () => clearInterval(timerInterval);
-  }, [timeLeft, tier, handleFinish]);
+    return () => clearInterval(timer);
+  }, [timeLeft, tier, hasFlippedThisTier, advanceToNextTier, handleFinish]);
 
-  // Отвлекающие HUD-уведомления (в одном углу)
+  // Генератор живого HEX-дампа (работает когда игрок печатает)
+  useEffect(() => {
+    if (!isTypingActive) return;
+    const chars = '0123456789ABCDEF';
+    const interval = setInterval(() => {
+      let res = '';
+      for (let i = 0; i < 6; i++) {
+        res += '0x' + chars[Math.floor(Math.random() * 16)] + chars[Math.floor(Math.random() * 16)] + ' ';
+      }
+      setHexDump(res.trim());
+    }, 90);
+    return () => clearInterval(interval);
+  }, [isTypingActive]);
+
+  // 4. Отрисовка интерактивной 3D-голограммы (Октаэдр с вращением)
+  useEffect(() => {
+    const canvas = canvas3dRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+    let angleX = 0;
+    let angleY = 0;
+
+    // Вершины 3D октаэдра
+    const vertices = [
+      [0, 1.2, 0], [0, -1.2, 0],
+      [1.2, 0, 0], [-1.2, 0, 0],
+      [0, 0, 1.2], [0, 0, -1.2]
+    ];
+
+    const edges = [
+      [0, 2], [0, 3], [0, 4], [0, 5],
+      [1, 2], [1, 3], [1, 4], [1, 5],
+      [2, 4], [4, 3], [3, 5], [5, 2]
+    ];
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const speed = isTypingActive ? 0.05 : 0.015;
+      angleX += speed;
+      angleY += speed * 0.8;
+
+      const size = canvas.width / 2;
+      const fov = 160;
+
+      const projected = vertices.map(([x, y, z]) => {
+        // Вращение X и Y
+        let radX = angleX;
+        let y1 = y * Math.cos(radX) - z * Math.sin(radX);
+        let z1 = y * Math.sin(radX) + z * Math.cos(radX);
+
+        let radY = angleY;
+        let x2 = x * Math.cos(radY) + z1 * Math.sin(radY);
+        let z2 = -x * Math.sin(radY) + z1 * Math.cos(radY);
+
+        let scale = fov / (fov + z2 + 2);
+        return [
+          x2 * scale * 26 + size,
+          y1 * scale * 26 + size
+        ];
+      });
+
+      // Рендер ребер
+      ctx.strokeStyle = isTypingActive ? '#ff8c00' : 'rgba(245, 158, 11, 0.45)';
+      ctx.lineWidth = isTypingActive ? 2 : 1.2;
+      ctx.shadowBlur = isTypingActive ? 12 : 4;
+      ctx.shadowColor = '#f59e0b';
+
+      edges.forEach(([i, j]) => {
+        ctx.beginPath();
+        ctx.moveTo(projected[i][0], projected[i][1]);
+        ctx.lineTo(projected[j][0], projected[j][1]);
+        ctx.stroke();
+      });
+
+      // Рендер узлов
+      projected.forEach(([px, py]) => {
+        ctx.fillStyle = '#ffedd5';
+        ctx.beginPath();
+        ctx.arc(px, py, isTypingActive ? 2.5 : 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isTypingActive]);
+
+  // HUD-уведомления
   useEffect(() => {
     const notifInterval = setInterval(() => {
       const randomIndex = Math.floor(Math.random() * NOTIFICATIONS_POOL.length);
@@ -130,7 +269,6 @@ export default function HackingPhase({ onComplete }) {
         text: NOTIFICATIONS_POOL[randomIndex]
       });
 
-      // Уведомление висит 4 секунды
       setTimeout(() => {
         setCurrentNotif(null);
       }, 4000);
@@ -139,37 +277,31 @@ export default function HackingPhase({ onComplete }) {
     return () => clearInterval(notifInterval);
   }, []);
 
-  // Периодический легкий микро-глитч киберпанка
-  useEffect(() => {
-    const glitchInterval = setInterval(() => {
-      setIsGlitching(true);
-      setTimeout(() => setIsGlitching(false), 250);
-    }, Math.random() * 8000 + 5000);
-
-    return () => clearInterval(glitchInterval);
-  }, []);
-
-  // Автоскролл текста к текущему слову
+  // Автоскролл к текущему слову
   useEffect(() => {
     const activeEl = document.getElementById(`word-${currentWordIndex}`);
     if (activeEl && textScrollRef.current) {
-      activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [currentWordIndex]);
 
-  // Обработка набора символа
-  const processCharacterInput = useCallback((inputChar) => {
+  // 5. Обработка набора с инвертированным подсвечиванием
+  const processInputChar = useCallback((inputChar) => {
     const char = inputChar.toLowerCase();
     if (!/[а-яё]/.test(char)) return;
 
     const currentWord = words[currentWordIndex];
     if (!currentWord) return;
 
+    // Активируем статус печати для анимаций HEX и 3D
+    setIsTypingActive(true);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => setIsTypingActive(false), 900);
+
+    // Сверяем ввод: игрок нажимает символы слова по порядку (п -> р -> и -> в -> е -> т)
     const expectedChar = currentWord[currentLetterIndex];
 
     if (char === expectedChar) {
-      setTotalTypedChars(prev => prev + 1);
-
       if (currentLetterIndex + 1 >= currentWord.length) {
         if (currentWordIndex + 1 >= words.length) {
           handleFinish(true);
@@ -182,26 +314,26 @@ export default function HackingPhase({ onComplete }) {
       }
     } else {
       setErrors(prev => prev + 1);
-      const container = document.getElementById('hack-screen');
+      const container = document.getElementById('hack-viewport');
       if (container) {
-        container.classList.add(styles.screenErrorShake);
-        setTimeout(() => container.classList.remove(styles.screenErrorShake), 250);
+        container.classList.add(styles.errorFlash);
+        setTimeout(() => container.classList.remove(styles.errorFlash), 200);
       }
     }
   }, [words, currentWordIndex, currentLetterIndex, handleFinish]);
 
-  // Обработчик физической клавиатуры
+  // Слушатель клавиатуры ПК
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.ctrlKey || e.altKey || e.metaKey || e.key.length > 1) return;
-      processCharacterInput(e.key);
+      processInputChar(e.key);
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [processCharacterInput]);
+  }, [processInputChar]);
 
-  // Фокус для мобильного ввода при клике по экрану
+  // Фокусировка скрытого инпута для мобильных
   const handleContainerClick = () => {
     if (mobileInputRef.current) {
       mobileInputRef.current.focus();
@@ -215,30 +347,28 @@ export default function HackingPhase({ onComplete }) {
   };
 
   // Расчет прогресса
-  const totalLettersInLevel = words.reduce((acc, w) => acc + w.length, 0);
-  const currentLettersTyped = words.slice(0, currentWordIndex).reduce((acc, w) => acc + w.length, 0) + currentLetterIndex;
-  const progressPercent = totalLettersInLevel > 0 
-    ? Math.min(100, Math.round((currentLettersTyped / totalLettersInLevel) * 100)) 
-    : 0;
+  const totalLetters = words.reduce((acc, w) => acc + w.length, 0);
+  const typedLetters = words.slice(0, currentWordIndex).reduce((acc, w) => acc + w.length, 0) + currentLetterIndex;
+  const progressPercent = totalLetters > 0 ? Math.min(100, Math.round((typedLetters / totalLetters) * 100)) : 0;
 
   return (
     <div 
-      id="hack-screen" 
-      className={`${styles.viewport} ${isGlitching ? styles.screenGlitch : ''}`}
+      id="hack-viewport"
+      className={`${styles.viewport} ${isGlitching ? styles.glitchEffect : ''} ${isFlipped ? styles.flippedScreen : ''}`}
       onClick={handleContainerClick}
     >
-      <div className={styles.gridBackground}></div>
+      <div className={styles.gridOverlay}></div>
       <div className={styles.scanlines}></div>
 
-      {/* Скрытый инпут для виртуальной клавиатуры смартфонов */}
+      {/* Невидимый инпут для вызова клавиатуры на смартфонах */}
       <input
         ref={mobileInputRef}
         type="text"
-        className={styles.mobileHiddenInput}
+        className={styles.hiddenMobileInput}
         onChange={(e) => {
           const val = e.target.value;
           if (val.length > 0) {
-            processCharacterInput(val[val.length - 1]);
+            processInputChar(val[val.length - 1]);
             e.target.value = '';
           }
         }}
@@ -247,32 +377,48 @@ export default function HackingPhase({ onComplete }) {
         autoCorrect="off"
       />
 
-      {/* Верхний HUD-бар */}
+      {/* Верхний HUD */}
       <header className={styles.hudHeader}>
-        <div className={styles.leftMeta}>
-          <div className={styles.statusBadge}>
-            <span className={styles.pulseDot}></span>
-            ПРОТОКОЛ: ОЧИСТКА ЯДРА
+        <div className={styles.hudLeft}>
+          <div className={styles.holoWidget}>
+            <canvas ref={canvas3dRef} width="70" height="70" className={styles.holoCanvas} />
           </div>
-          <div className={styles.tierIndicator}>
-            СЛОЖНОСТЬ: <span className={styles.tierValue}>УРОВЕНЬ {tier}/3</span>
-          </div>
-        </div>
-
-        <div className={styles.centerTimer}>
-          <div className={`${styles.timerDisplay} ${timeLeft <= 20 ? styles.timerEmergency : ''}`}>
-            <span className={styles.timerLabel}>ТАЙМЕР ДО СБОЯ</span>
-            <span className={styles.timerDigits}>{formatTime(timeLeft)}</span>
+          <div className={styles.metaInfo}>
+            <div className={styles.badgeProtocol}>
+              <span className={styles.pulseDot}></span>
+              ALBARS_CORE // ПЕРЕХВАТ
+            </div>
+            <div className={styles.badgeTier}>
+              СЛОЖНОСТЬ: <span className={styles.tierHighlight}>{tier} ИЗ 3</span>
+            </div>
           </div>
         </div>
 
-        <div className={styles.rightStats}>
+        {/* Центральный интерактивный блок HEX-памяти */}
+        <div className={styles.hudCenter}>
+          <div className={styles.hexBox}>
+            <div className={styles.hexHeader}>
+              <span className={styles.hexTitle}>RAM STREAM</span>
+              <span className={`${styles.hexStatus} ${isTypingActive ? styles.hexActive : ''}`}>
+                {isTypingActive ? 'BUFFERING' : 'IDLE'}
+              </span>
+            </div>
+            <div className={styles.hexText}>{hexDump}</div>
+          </div>
+
+          <div className={`${styles.timerCard} ${timeLeft <= 60 ? styles.timerWarning : ''}`}>
+            <span className={styles.timerSub}>ДО СБОЯ</span>
+            <span className={styles.timerTime}>{formatTime(timeLeft)}</span>
+          </div>
+        </div>
+
+        <div className={styles.hudRight}>
           <div className={styles.statBox}>
             <span className={styles.statLabel}>ОШИБКИ</span>
-            <span className={styles.statErrorValue}>{errors}</span>
+            <span className={styles.statVal}>{errors}</span>
           </div>
           <button 
-            className={styles.skipButton}
+            className={styles.skipBtn}
             onClick={(e) => { e.stopPropagation(); handleFinish(true); }}
           >
             ПРОПУСК ⏭
@@ -280,42 +426,39 @@ export default function HackingPhase({ onComplete }) {
         </div>
       </header>
 
-      {/* Полоса прогресса */}
-      <div className={styles.progressBarWrapper}>
-        <div 
-          className={styles.progressBarFill} 
-          style={{ width: `${progressPercent}%` }}
-        >
-          <span className={styles.progressGlowLight}></span>
+      {/* Прогресс-бар */}
+      <div className={styles.progressBar}>
+        <div className={styles.progressFill} style={{ width: `${progressPercent}%` }}>
+          <div className={styles.progressGlow}></div>
         </div>
-        <span className={styles.progressText}>{progressPercent}% ДЕШИФРОВАНО</span>
+        <span className={styles.progressValue}>{progressPercent}% ДЕШИФРОВАНО</span>
       </div>
 
-      {/* Всплывающее предупреждение о смене уровня */}
-      {levelUpMessage && (
-        <div className={styles.levelBanner}>
-          {levelUpMessage}
+      {/* Предупреждение о смене уровня */}
+      {tierChangeBanner && (
+        <div className={styles.bannerContainer}>
+          <span className={styles.bannerIcon}>⚠️</span>
+          {tierChangeBanner}
         </div>
       )}
 
-      {/* Единый HUD-виджет для отвлекающих сообщений */}
+      {/* HUD-уведомление */}
       {currentNotif && (
-        <div className={styles.hudNotificationToast}>
-          <div className={styles.toastHeader}>
-            <span className={styles.toastIcon}>💬</span>
-            <span className={styles.toastTitle}>ВХОДЯЩИЙ СИГНАЛ // СЕРДЦЕ СИСТЕМЫ</span>
+        <div className={styles.toastWidget}>
+          <div className={styles.toastHead}>
+            <span>💖 ВХОДЯЩИЙ СИГНАЛ</span>
           </div>
           <div className={styles.toastBody}>
             {currentNotif.text}
           </div>
-          <div className={styles.toastLine}></div>
+          <div className={styles.toastBar}></div>
         </div>
       )}
 
-      {/* Основная рабочая панель с текстом */}
-      <main className={styles.typingContainer} ref={textScrollRef}>
-        <div className={styles.terminalFrame}>
-          <div className={styles.wordsMatrix}>
+      {/* Рабочая область печати */}
+      <main className={styles.typingArea} ref={textScrollRef}>
+        <div className={styles.matrixBox}>
+          <div className={styles.textMatrix}>
             {words.map((word, wIdx) => {
               const isPastWord = wIdx < currentWordIndex;
               const isCurrentWord = wIdx === currentWordIndex;
@@ -324,23 +467,25 @@ export default function HackingPhase({ onComplete }) {
                 <span 
                   id={`word-${wIdx}`} 
                   key={wIdx} 
-                  className={`${styles.wordBlock} ${isPastWord ? styles.wordDone : ''} ${isCurrentWord ? styles.wordActive : ''}`}
+                  className={`${styles.word} ${isPastWord ? styles.wordFinished : ''} ${isCurrentWord ? styles.wordCurrent : ''}`}
                 >
                   {word.split('').map((char, cIdx) => {
-                    let charClass = styles.charPending;
+                    let charState = styles.charGhost;
 
                     if (isPastWord) {
-                      charClass = styles.charSuccess;
+                      charState = styles.charDone;
                     } else if (isCurrentWord) {
-                      if (cIdx < currentLetterIndex) {
-                        charClass = styles.charSuccess;
-                      } else if (cIdx === currentLetterIndex) {
-                        charClass = styles.charCurrentCaret;
+                      // Зеркальное отображение: вводя п-р-и-в-е-т символы загораются с конца слова
+                      const reversedIndex = (word.length - 1) - cIdx;
+                      if (reversedIndex < currentLetterIndex) {
+                        charState = styles.charDone;
+                      } else if (reversedIndex === currentLetterIndex) {
+                        charState = styles.charCaret;
                       }
                     }
 
                     return (
-                      <span key={cIdx} className={`${styles.charSpan} ${charClass}`}>
+                      <span key={cIdx} className={`${styles.char} ${charState}`}>
                         {char}
                       </span>
                     );
@@ -354,8 +499,11 @@ export default function HackingPhase({ onComplete }) {
 
       {/* Нижняя информационная плашка */}
       <footer className={styles.hudFooter}>
-        <span className={styles.keyboardTip}>
-          * Набирайте текст на клавиатуре последовательно. Регистр букв и знаки препинания опускаются.
+        <div className={styles.mobileFocusPrompt} onClick={handleContainerClick}>
+          📱 Нажмите сюда, если клавиатура закрылась
+        </div>
+        <span className={styles.footerHint}>
+          * Аномалия ядра: ввод символов инвертирован. Набирайте слова в стандартном порядке слева направо.
         </span>
       </footer>
     </div>
