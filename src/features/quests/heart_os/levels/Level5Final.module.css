@@ -1,104 +1,214 @@
-/* Level5Final.module.css */
-.chaosContainer {
-  width: 100vw;
-  height: 100vh;
-  background: red;
+.levelWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
-  overflow: hidden;
+  padding: 20px;
 }
 
-.alertScreen {
+.skipBtn {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  color: white;
-  font-family: monospace;
+  top: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  color: #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+  z-index: 100;
+}
+
+.skipBtn:hover {
+  background: rgba(244, 63, 94, 0.2);
+  border-color: #f43f5e;
+  color: #fff;
+}
+
+.biometricModal {
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(244, 63, 94, 0.08);
+  backdrop-filter: blur(24px);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  padding: 28px;
+  box-sizing: border-box;
+  animation: fadeIn 0.4s ease;
+}
+
+.modalHeader {
+  margin-bottom: 16px;
+}
+
+.badgeStage {
+  font-size: 0.65rem;
+  color: #f43f5e;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.title {
+  margin: 0 0 6px 0;
+  font-size: 1.35rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.subtitle {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.canvasContainer {
+  width: 100%;
+  height: 240px;
+  background: #030712;
+  border: 2px dashed rgba(244, 63, 94, 0.3);
+  border-radius: 12px;
+  position: relative;
+  margin-bottom: 20px;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.paintCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+}
+
+.canvasPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(244, 63, 94, 0.4);
+  font-size: 0.85rem;
   pointer-events: none;
 }
 
-.alertScreen h1 {
-  font-size: 4rem;
-  margin: 0;
-  animation: shake 0.5s infinite;
-}
-
-.timerStr {
-  opacity: 0.3;
-}
-
-.crazyBtn {
+.laserScanLine {
   position: absolute;
-  background: #000;
-  color: #fff;
-  border: 2px solid #fff;
-  padding: 10px 20px;
-  cursor: crosshair;
-  transition: all 0.1s;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #38bdf8;
+  box-shadow: 0 0 15px #38bdf8;
+  animation: scanAnim 1.2s linear infinite alternate;
 }
 
-.peaceScreen {
-  width: 100vw;
-  height: 100vh;
-  background: #050505;
+.controlButtons {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: background 2s ease;
+  gap: 12px;
 }
 
-.heartContainer {
+.clearBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.8rem;
   cursor: pointer;
-  animation: pulse 2s infinite;
+  transition: all 0.2s ease;
 }
 
-.heart {
-  width: 200px;
-  height: 200px;
-  background: #ff2a5f;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.clearBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
-  font-size: 2rem;
-  font-weight: bold;
-  box-shadow: 0 0 50px rgba(255, 42, 95, 0.5);
 }
 
-.peaceText {
-  color: #eaeaea;
-  margin-top: 50px;
-  font-size: 1.2rem;
+.submitBtn {
+  flex: 1;
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  border: none;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+  transition: all 0.2s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  box-shadow: 0 0 35px rgba(244, 63, 94, 0.7);
+  transform: translateY(-1px);
+}
+
+.submitBtn:disabled, .clearBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ФИНАЛЬНЫЙ СБОЙ / ПЕРЕГРЕВ */
+.overloadContainer {
   text-align: center;
-  max-width: 600px;
-  font-family: 'Inter', sans-serif;
-  opacity: 0;
-  animation: fadeIn 3s forwards 1s;
+  animation: glitchIn 0.4s ease;
 }
 
-@keyframes shake {
-  0% { transform: translate(1px, 1px) rotate(0deg); }
-  10% { transform: translate(-1px, -2px) rotate(-1deg); }
-  20% { transform: translate(-3px, 0px) rotate(1deg); }
-  30% { transform: translate(3px, 2px) rotate(0deg); }
-  40% { transform: translate(1px, -1px) rotate(1deg); }
-  50% { transform: translate(-1px, 2px) rotate(-1deg); }
-  60% { transform: translate(-3px, 1px) rotate(0deg); }
-  70% { transform: translate(3px, 1px) rotate(-1deg); }
-  80% { transform: translate(-1px, -1px) rotate(1deg); }
-  90% { transform: translate(1px, 2px) rotate(0deg); }
-  100% { transform: translate(1px, -2px) rotate(-1deg); }
+.glitchHeart {
+  font-size: 5rem;
+  filter: drop-shadow(0 0 40px #f43f5e);
+  animation: pulseHuge 0.6s infinite alternate;
+  margin-bottom: 20px;
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); box-shadow: 0 0 50px rgba(255, 42, 95, 0.5); }
-  50% { transform: scale(1.1); box-shadow: 0 0 80px rgba(255, 42, 95, 0.8); }
-  100% { transform: scale(1); box-shadow: 0 0 50px rgba(255, 42, 95, 0.5); }
+.overloadTitle {
+  color: #ef4444;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+}
+
+.overloadDesc {
+  color: #fca5a5;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 16px 24px;
+  border-left: 4px solid #ef4444;
+  border-radius: 8px;
+  display: inline-block;
+  text-align: left;
+}
+
+@keyframes scanAnim {
+  from { top: 0%; }
+  to { top: 100%; }
+}
+
+@keyframes pulseHuge {
+  from { transform: scale(0.9); }
+  to { transform: scale(1.15); }
 }
 
 @keyframes fadeIn {
-  to { opacity: 1; }
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes glitchIn {
+  0% { transform: translate(-4px, 4px); }
+  50% { transform: translate(4px, -4px); }
+  100% { transform: translate(0); }
 }
