@@ -1,89 +1,119 @@
 import { useState, useEffect } from 'react';
 import styles from './Level4Password.module.css';
 
-// 10 основных правил
-const rules = [
-  { id: 1, text: "Слишком коротко, я так не играю. Давай минимум 10 символов.", check: (p) => p.length >= 10 },
-  { id: 2, text: "Где экспрессия?! Добавь хотя бы одну заглавную букву и спецсимвол.", check: (p) => /[A-ZА-Я]/.test(p) && /[!@#$%^&*(),.?":{}|<>]/.test(p) },
-  { id: 3, text: "В пароле должно быть имя лучшего парня (Саша).", check: (p) => p.toLowerCase().includes('саша') },
-  { id: 4, text: "А когда мы познакомились? Напиши месяц прописью (июнь).", check: (p) => p.toLowerCase().includes('июнь') },
-  { id: 5, text: "Время математики. Сумма всех цифр в пароле должна равняться 23.", check: (p) => {
-      const digits = p.match(/\d/g);
-      return digits ? digits.reduce((a, b) => a + parseInt(b), 0) === 23 : false;
-  }},
-  { id: 6, text: "Мне разонравилась буква 'а'. И русская, и английская. Удали её везде.", check: (p) => !p.toLowerCase().includes('а') && !p.toLowerCase().includes('a') },
-  { id: 7, text: "'Июнь' слишком банально. Разверни задом наперед ('ьнюи').", check: (p) => p.toLowerCase().includes('ьнюи') },
-  { id: 8, text: "Добавь классический текстовый смайлик :-) для поднятия настроения.", check: (p) => p.includes(':-)') },
-  { id: 9, text: "Система не пропустит тебя, пока ты не напишешь 'люблю'.", check: (p) => p.toLowerCase().includes('люблю') },
-  { id: 10, text: "Идеальная длина пароля — ровно 18 символов. Подгоняй.", check: (p) => p.length === 18 }
+// Правила в стиле Password Game
+const RULES = [
+  {
+    id: 1,
+    text: 'Правило 1: Пароль должен содержать не менее 6 символов.',
+    check: (pw) => pw.length >= 6
+  },
+  {
+    id: 2,
+    text: 'Правило 2: Пароль должен содержать заглавную букву.',
+    check: (pw) => /[A-ZА-ЯЁ]/.test(pw)
+  },
+  {
+    id: 3,
+    text: 'Правило 3: Пароль должен содержать день твоего рождения (число 20).',
+    check: (pw) => pw.includes('20')
+  },
+  {
+    id: 4,
+    text: 'Правило 4: Пароль должен содержать имя создателя ("Саша" или "Aleksandr").',
+    check: (pw) => /Саша|саша|Aleksandr|aleksandr/i.test(pw)
+  },
+  {
+    id: 5,
+    text: 'Правило 5: Пароль должен содержать эмодзи сердца (❤️).',
+    check: (pw) => pw.includes('❤️')
+  }
 ];
 
-const KEYS = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}:,./?".split('');
+export default function Level4Password({ onNext, onSkip }) {
+  const [password, setPassword] = useState('');
+  const [visibleRulesCount, setVisibleRulesCount] = useState(1);
+  const [isSuccess, setIsSuccess] = useState(false);
 
-export default function Level4Password({ onNext }) {
-  const [password, setPassword] = useState("");
-  const [currentRuleIndex, setCurrentRuleIndex] = useState(0);
-  const [keyboard, setKeyboard] = useState(KEYS);
-
-  const shuffleKeyboard = () => {
-    let shuffled = [...keyboard];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    setKeyboard(shuffled);
-  };
-
+  // Каскадное появление правил по мере их выполнения
   useEffect(() => {
-    shuffleKeyboard();
-  }, []);
-
-  useEffect(() => {
-    // Проверка правил
-    if (currentRuleIndex < rules.length) {
-      if (rules[currentRuleIndex].check(password)) {
-        setCurrentRuleIndex(prev => prev + 1);
+    let currentPassed = 0;
+    for (let i = 0; i < RULES.length; i++) {
+      if (RULES[i].check(password)) {
+        currentPassed = i + 1;
+      } else {
+        break;
       }
-    } else {
-      setTimeout(onNext, 1500);
     }
-  }, [password, currentRuleIndex, onNext]);
+    setVisibleRulesCount(Math.min(RULES.length, Math.max(1, currentPassed + 1)));
 
-  const handleKeyPress = (char) => {
-    setPassword(prev => prev + char);
-    shuffleKeyboard();
-  };
-
-  const handleBackspace = () => {
-    setPassword(prev => prev.slice(0, -1));
-    shuffleKeyboard();
-  };
+    // Проверка выполнения абсолютно всех 5 правил
+    const allPassed = RULES.every(rule => rule.check(password));
+    if (allPassed && !isSuccess) {
+      setIsSuccess(true);
+      setTimeout(() => {
+        onNext();
+      }, 1800);
+    }
+  }, [password, isSuccess, onNext]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.aiBox}>
-        <p className={styles.aiName}>HeartOS AI:</p>
-        <p className={styles.aiText}>
-          {currentRuleIndex < rules.length ? rules[currentRuleIndex].text : "Пароль идеален. Доступ разрешен."}
-        </p>
-      </div>
+    <div className={styles.levelWrapper}>
+      <button className={styles.skipBtn} onClick={onSkip}>
+        ПРОПУСТИТЬ УРОВЕНЬ ⏭
+      </button>
 
-      <input 
-        type="text" 
-        value={password} 
-        readOnly 
-        className={styles.passwordInput} 
-        placeholder="Введите пароль..."
-      />
-      <div className={styles.counter}>Символов: {password.length}</div>
+      <div className={`${styles.passwordModal} ${isSuccess ? styles.modalSuccess : ''}`}>
+        <div className={styles.modalHeader}>
+          <div className={styles.headerTag}>HeartOS Security // Stage 4 of 5</div>
+          <h2 className={styles.title}>Генерация мастер-пароля</h2>
+          <p className={styles.subtitle}>
+            Для снятия аварийной изоляции создайте пароль, удовлетворяющий протоколу искренности.
+          </p>
+        </div>
 
-      <div className={styles.keyboard}>
-        {keyboard.map((char, i) => (
-          <button key={i} className={styles.key} onClick={() => handleKeyPress(char)}>
-            {char}
+        <div className={styles.inputContainer}>
+          <input 
+            type="text"
+            className={styles.passwordInput}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Введите пароль..."
+            autoFocus
+          />
+          <button 
+            type="button"
+            className={styles.heartInsertBtn}
+            onClick={() => setPassword(prev => prev + '❤️')}
+            title="Вставить ❤️"
+          >
+            + ❤️
           </button>
-        ))}
-        <button className={styles.keyBack} onClick={handleBackspace}>⌫</button>
+        </div>
+
+        <div className={styles.rulesList}>
+          {RULES.slice(0, visibleRulesCount).map((rule) => {
+            const passed = rule.check(password);
+            return (
+              <div 
+                key={rule.id}
+                className={`${styles.ruleCard} ${passed ? styles.rulePassed : styles.ruleFailed}`}
+              >
+                <div className={styles.ruleStatusIcon}>
+                  {passed ? '✓' : '✕'}
+                </div>
+                <div className={styles.ruleText}>{rule.text}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className={styles.footerBar}>
+          <div className={styles.statusIndicator}>
+            Соблюдено правил: <strong>{RULES.filter(r => r.check(password)).length} / {RULES.length}</strong>
+          </div>
+          {isSuccess && <div className={styles.successBadge}>ПАРОЛЬ ПРИНЯТ! СНЯТИЕ БЛОКИРОВОК...</div>}
+        </div>
       </div>
     </div>
   );
