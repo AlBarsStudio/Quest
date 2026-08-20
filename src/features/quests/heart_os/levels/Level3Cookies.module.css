@@ -1,3 +1,4 @@
+/* ОБЩИЙ КОНТЕЙНЕР */
 .levelWrapper {
   width: 100%;
   height: 100%;
@@ -6,6 +7,7 @@
   align-items: center;
   position: relative;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .skipBtn {
@@ -13,8 +15,8 @@
   top: 24px;
   right: 24px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px dashed rgba(255, 255, 255, 0.3);
-  color: #e2e8f0;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  color: #94a3b8;
   padding: 8px 16px;
   border-radius: 6px;
   font-family: inherit;
@@ -30,215 +32,522 @@
   background: rgba(244, 63, 94, 0.2);
   border-color: #f43f5e;
   color: #fff;
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
 }
 
-.gdprModal {
-  background: rgba(15, 23, 42, 0.92);
-  border: 1px solid rgba(244, 63, 94, 0.3);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(244, 63, 94, 0.05);
-  backdrop-filter: blur(24px);
-  border-radius: 16px;
+/* ГЛАВНАЯ СТЕКЛЯННАЯ КАРТОЧКА */
+.mainCard {
+  background: rgba(13, 19, 33, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 30px 60px -12px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 0 30px rgba(168, 85, 247, 0.04);
+  backdrop-filter: blur(32px) saturate(190%);
+  border-radius: 24px;
   width: 100%;
-  max-width: 560px;
-  padding: 28px;
+  max-width: 680px;
+  overflow: hidden;
+  animation: cardSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
   box-sizing: border-box;
-  animation: fadeIn 0.5s ease;
-  transition: all 0.3s ease;
 }
 
-.modalSuccess {
-  border-color: #22c55e !important;
-  box-shadow: 0 0 40px rgba(34, 197, 94, 0.35) !important;
-}
-
-.modalHeader {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.cookieIcon {
-  font-size: 2.2rem;
-  background: rgba(244, 63, 94, 0.1);
-  border: 1px solid rgba(244, 63, 94, 0.2);
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.badgeStage {
-  font-size: 0.65rem;
-  color: #f43f5e;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-
-.title {
-  margin: 2px 0 0 0;
-  font-size: 1.3rem;
-  color: #fff;
-  font-weight: 600;
-}
-
-.description {
-  font-size: 0.82rem;
-  color: #94a3b8;
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-.togglesList {
-  max-height: 220px;
-  overflow-y: auto;
-  padding-right: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  padding: 12px;
-}
-
-.togglesList::-webkit-scrollbar {
-  width: 5px;
-}
-.togglesList::-webkit-scrollbar-thumb {
-  background: rgba(244, 63, 94, 0.4);
-  border-radius: 4px;
-}
-
-.toggleRow {
+/* ШАПКА КАРТОЧКИ */
+.cardHeader {
+  background: rgba(3, 7, 18, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 6px;
+}
+
+.stageTag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stageNumber {
+  color: #c084fc;
+  font-weight: 800;
+  font-size: 0.85rem;
+  background: rgba(192, 132, 252, 0.15);
+  border: 1px solid rgba(192, 132, 252, 0.35);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.stageLabel {
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+}
+
+.aiStatusBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  color: #c084fc;
+  letter-spacing: 1px;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  background: #c084fc;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #c084fc;
+  animation: pulseDot 1.5s infinite;
+}
+
+/* ТЕЛО КАРТОЧКИ */
+.contentBody {
+  padding: 32px 36px 28px 36px;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.titleSuccess {
+  font-size: 1.6rem;
+  color: #22c55e;
+  margin: 0 0 12px 0;
+}
+
+.description {
+  color: #94a3b8;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  margin: 0 0 22px 0;
+}
+
+/* БЭЙДЖИ */
+.badgeWarn {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: #c084fc;
+  background: rgba(192, 132, 252, 0.12);
+  border: 1px solid rgba(192, 132, 252, 0.35);
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.badgeCritical {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.badgeStage {
+  display: inline-block;
+  font-size: 0.7rem;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* ФАЗА 1: ВКЛАДКИ И СПИСОК ТУМБЛЕРОВ */
+.tabsRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.tabBtn {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.tabBtn:hover {
+  color: #fff;
+  border-color: rgba(192, 132, 252, 0.3);
+}
+
+.tabBtnActive {
+  background: rgba(192, 132, 252, 0.18) !important;
+  border-color: #c084fc !important;
+  color: #fff !important;
+  box-shadow: 0 0 15px rgba(192, 132, 252, 0.25);
+}
+
+.togglesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  max-height: 230px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.toggleRow {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .toggleRow:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
-.keyRow {
-  border-color: rgba(244, 63, 94, 0.4);
-  background: rgba(244, 63, 94, 0.05);
+.toggleRowActive {
+  border-color: rgba(192, 132, 252, 0.35);
+  background: rgba(192, 132, 252, 0.06);
 }
 
-.toggleInfo {
+.toggleTextGroup {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex: 1;
+  align-items: flex-start;
+  gap: 3px;
+  text-align: left;
 }
 
 .toggleLabel {
-  font-size: 0.8rem;
   color: #e2e8f0;
+  font-size: 0.84rem;
+  font-weight: 500;
 }
 
-.lockedBadge {
+.toggleId {
   font-size: 0.65rem;
   color: #64748b;
 }
 
-.targetBadge {
-  font-size: 0.65rem;
-  color: #f43f5e;
-  font-weight: bold;
-}
-
 .switchTrack {
-  width: 40px;
-  height: 22px;
+  width: 44px;
+  height: 24px;
   background: #334155;
   border-radius: 12px;
   position: relative;
-  transition: background 0.3s ease;
+  transition: background 0.25s ease;
   flex-shrink: 0;
-  margin-left: 12px;
+  margin-left: 14px;
 }
 
 .switchThumb {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   background: #fff;
   border-radius: 50%;
   position: absolute;
   top: 3px;
   left: 3px;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .switchOn {
-  background: #f43f5e;
+  background: #c084fc;
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.5);
 }
 
 .switchOn .switchThumb {
-  transform: translateX(18px);
+  transform: translateX(20px);
 }
 
-.errorMessage {
-  background: rgba(239, 68, 68, 0.15);
+.toggleErrorAlert {
+  background: rgba(239, 68, 68, 0.18);
   border: 1px solid #ef4444;
   color: #fca5a5;
-  font-size: 0.75rem;
-  padding: 10px;
-  border-radius: 6px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 18px;
+  text-align: left;
+  line-height: 1.4;
+  animation: shake 0.35s ease;
+}
+
+.submitTogglesBtn {
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(168, 85, 247, 0.35);
+  transition: all 0.25s ease;
+}
+
+.submitTogglesBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(168, 85, 247, 0.55);
+}
+/* ФАЗА 2: СКРОЛЛ СОГЛАШЕНИЯ */
+.legalScrollBox {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  max-height: 240px;
+  overflow-y: auto;
+  text-align: left;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: #cbd5e1;
   margin-bottom: 16px;
 }
 
-.buttonGroup {
-  display: flex;
-  gap: 12px;
-  position: relative;
+.legalScrollBox::-webkit-scrollbar {
+  width: 6px;
+}
+.legalScrollBox::-webkit-scrollbar-thumb {
+  background: rgba(192, 132, 252, 0.4);
+  border-radius: 4px;
 }
 
-.acceptAllBtn {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #94a3b8;
-  padding: 12px;
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: transform 0.1s linear;
+.legalScrollBox p {
+  margin: 0 0 14px 0;
 }
 
-.saveBtn {
-  flex: 1;
-  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
-  border: none;
-  color: #fff;
-  padding: 12px;
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
+.secretTextLink {
+  color: #38bdf8;
+  font-weight: bold;
   cursor: pointer;
-  letter-spacing: 1px;
-  box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+  background: rgba(56, 189, 248, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px dashed rgba(56, 189, 248, 0.4);
   transition: all 0.2s ease;
+  display: inline-block;
 }
 
-.saveBtn:hover {
-  box-shadow: 0 0 30px rgba(244, 63, 94, 0.7);
-  transform: translateY(-1px);
+.secretTextLink:hover {
+  background: rgba(56, 189, 248, 0.3);
+  color: #fff;
+  box-shadow: 0 0 12px #38bdf8;
+  transform: scale(1.03);
+}
+
+.legalHint {
+  font-size: 0.78rem;
+  color: #eab308;
+  letter-spacing: 0.5px;
+}
+
+/* ФАЗА 3: АДСКИЙ СЛАЙДЕР */
+.sliderControlContainer {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 24px 20px;
+}
+
+.sliderReadout {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+.readoutNum {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.sliderTrackWrapper {
+  position: relative;
+  margin-bottom: 12px;
+  padding: 10px 0;
+}
+
+.targetZoneMarker {
+  position: absolute;
+  top: 10px;
+  height: 12px;
+  background: #22c55e;
+  border-radius: 2px;
+  box-shadow: 0 0 12px #22c55e;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.physicsSlider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  border-radius: 6px;
+  background: #1e293b;
+  outline: none;
+  cursor: grab;
+  position: relative;
+  z-index: 5;
+}
+
+.physicsSlider:active {
+  cursor: grabbing;
+}
+
+.physicsSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #38bdf8;
+  cursor: grab;
+  box-shadow: 0 0 20px #38bdf8;
+  border: 2px solid #fff;
+  transition: transform 0.1s ease;
+}
+
+.sliderActive::-webkit-slider-thumb {
+  transform: scale(1.2);
+  background: #22c55e;
+  box-shadow: 0 0 25px #22c55e;
+}
+
+.targetLegend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+.targetMarkLabel {
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.sliderAlertBox {
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 20px;
+  animation: fadeIn 0.25s ease;
+}
+
+.holdProgressBlock {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  padding: 14px 18px;
+  text-align: left;
+}
+
+.holdText {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.holdText strong {
+  color: #22c55e;
+  font-size: 1rem;
+}
+
+.holdProgressBar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.holdProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #22c55e);
+  box-shadow: 0 0 15px #22c55e;
+  transition: width 0.1s linear;
+}
+
+/* УСПЕХ */
+.successGlyph {
+  width: 60px;
+  height: 60px;
+  background: #22c55e;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 auto 20px auto;
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
+}
+
+/* АНИМАЦИИ */
+@keyframes cardSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 640px) {
+  .mainCard { max-width: 95%; }
+  .contentBody { padding: 22px 16px; }
+  .title { font-size: 1.3rem; }
+  .tabsRow { gap: 4px; }
+  .tabBtn { font-size: 0.68rem; padding: 8px 10px; }
 }
