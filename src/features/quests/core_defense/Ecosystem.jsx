@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './Ecosystem.module.css';
 
-// 1. БОЛЬШАЯ БАЗА ДАННЫХ ФАЙЛОВОЙ СИСТЕМЫ (40+ ПАПОК, 100+ ФАЙЛОВ)
+// 1. БАЗА ДАННЫХ ФАЙЛОВОЙ СИСТЕМЫ (ЧАСТЬ 1: UE5 & 3D PIPELINE)
 const FILE_SYSTEM = {
   'UE5_Gamedev_Vault': {
     type: 'folder',
@@ -190,7 +190,6 @@ const FILE_SYSTEM = {
   }
 };
 
-// 2. БАЗА РЕПЛИК И ФОНОВЫХ ДЕЙСТВИЙ GEMINI AI
 const BACKGROUND_AI_THOUGHTS = [
   "Оптимизирую компиляцию шейдеров Unreal Engine 5. Выделено 16 потоков CPU.",
   "Обучаю локальную нейросеть распознаванию счастливых улыбок. Точность: 99.98%.",
@@ -220,15 +219,12 @@ export default function Ecosystem({ onHeartClick, results }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [victoryModal, setVictoryModal] = useState(false);
 
-  // Телеметрия
   const [heartRate, setHeartRate] = useState(74);
   const [caffeine, setCaffeine] = useState(86);
   const [vram, setVram] = useState(21.4);
   const [cpuUsage, setCpuUsage] = useState(42);
-  const [ecgOffset, setEcgOffset] = useState(0);
   const [hexMemory, setHexMemory] = useState('0x7F 0x4A 0xDE 0x12 0x90 0xBC');
 
-  // ИИ Ассистент
   const [aiSpeech, setAiSpeech] = useState("Приветствую в хранилище ALBARS_CORE! Ядро спасено, исследуйте архивы или найдите мастер-ключ.");
   const [aiLogs, setAiLogs] = useState([
     { id: 1, text: "SYS: Авторизован доступ оператора АНАСТАСИЯ.", time: "12:00:01" },
@@ -237,7 +233,6 @@ export default function Ecosystem({ onHeartClick, results }) {
 
   const canvasViewerRef = useRef(null);
 
-  // Получение текущей папки
   const getCurrentFolder = () => {
     let current = FILE_SYSTEM;
     for (const segment of currentPath) {
@@ -248,7 +243,6 @@ export default function Ecosystem({ onHeartClick, results }) {
     return current;
   };
 
-  // Переход в папку
   const handleOpenFolder = (folderName) => {
     const newPath = [...currentPath, folderName];
     setCurrentPath(newPath);
@@ -260,7 +254,6 @@ export default function Ecosystem({ onHeartClick, results }) {
     }
   };
 
-  // Навигация по хлебным крошкам
   const handleBreadcrumbClick = (index) => {
     if (index === -1) {
       setCurrentPath([]);
@@ -272,13 +265,11 @@ export default function Ecosystem({ onHeartClick, results }) {
     }
   };
 
-  // Добавление лога ИИ
   const addAiLog = (text) => {
     const time = new Date().toLocaleTimeString();
     setAiLogs(prev => [...prev.slice(-8), { id: Date.now(), text, time }]);
   };
 
-  // Клик по файлу
   const handleFileClick = (fileName, fileData) => {
     if (fileData.isMasterKey) {
       setAiSpeech("ОБНАРУЖЕН МАСТЕР-КЛЮЧ! Инициирую протокол победы и синхронизацию с Дашбордом!");
@@ -291,27 +282,21 @@ export default function Ecosystem({ onHeartClick, results }) {
     setAiSpeech(`Файл [${fileName}]: ${fileData.desc}`);
     addAiLog(`INSPECT: Открыт файл ${fileName} (${fileData.size}).`);
   };
-
-  // Фоновые мысли ИИ
   useEffect(() => {
     const thoughtInterval = setInterval(() => {
       const randomThought = BACKGROUND_AI_THOUGHTS[Math.floor(Math.random() * BACKGROUND_AI_THOUGHTS.length)];
       addAiLog(`AI.TASK: ${randomThought}`);
     }, 7000);
-
     return () => clearInterval(thoughtInterval);
   }, []);
 
-  // Живая анимация телеметрии (ЭКГ, HEX, Нагрузка)
   useEffect(() => {
     const telemetryInterval = setInterval(() => {
       setHeartRate(prev => Math.floor(70 + Math.random() * 8));
       setCaffeine(prev => Math.min(100, Math.max(75, Math.floor(prev + (Math.random() * 2 - 1)))));
       setCpuUsage(prev => Math.floor(35 + Math.random() * 25));
       setVram(prev => +(21.0 + Math.random() * 0.8).toFixed(1));
-      setEcgOffset(prev => (prev + 4) % 100);
 
-      // HEX-генератор
       const hexChars = '0123456789ABCDEF';
       let hexStr = '';
       for (let i = 0; i < 6; i++) {
@@ -319,11 +304,9 @@ export default function Ecosystem({ onHeartClick, results }) {
       }
       setHexMemory(hexStr.trim());
     }, 200);
-
     return () => clearInterval(telemetryInterval);
   }, []);
 
-  // 3. 3D Интерактивный рендерер сетки в окне просмотра файла
   useEffect(() => {
     if (!selectedFile || !selectedFile.is3D || !canvasViewerRef.current) return;
     const canvas = canvasViewerRef.current;
@@ -332,25 +315,14 @@ export default function Ecosystem({ onHeartClick, results }) {
     let rotX = 0;
     let rotY = 0;
 
-    let vertices = [
-      [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
-      [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]
-    ];
-    let edges = [
-      [0, 1], [1, 2], [2, 3], [3, 0],
-      [4, 5], [5, 6], [6, 7], [7, 4],
-      [0, 4], [1, 5], [2, 6], [3, 7]
-    ];
+    let vertices = [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1], [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]];
+    let edges = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
 
     if (selectedFile.mesh === 'octa') {
       vertices = [[0, 1.4, 0], [0, -1.4, 0], [1.4, 0, 0], [-1.4, 0, 0], [0, 0, 1.4], [0, 0, -1.4]];
       edges = [[0, 2], [0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 4], [4, 3], [3, 5], [5, 2]];
     } else if (selectedFile.mesh === 'sphere' || selectedFile.mesh === 'torus') {
-      vertices = [
-        [-1.2, 0, 0], [1.2, 0, 0], [0, -1.2, 0], [0, 1.2, 0],
-        [0, 0, -1.2], [0, 0, 1.2], [-0.8, -0.8, 0], [0.8, 0.8, 0],
-        [-0.8, 0.8, 0], [0.8, -0.8, 0]
-      ];
+      vertices = [[-1.2, 0, 0], [1.2, 0, 0], [0, -1.2, 0], [0, 1.2, 0], [0, 0, -1.2], [0, 0, 1.2], [-0.8, -0.8, 0], [0.8, 0.8, 0], [-0.8, 0.8, 0], [0.8, -0.8, 0]];
       edges = [[0, 2], [2, 1], [1, 3], [3, 0], [4, 0], [4, 1], [5, 0], [5, 1], [6, 7], [8, 9]];
     }
 
@@ -358,17 +330,14 @@ export default function Ecosystem({ onHeartClick, results }) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       rotX += 0.02;
       rotY += 0.03;
-
       const fov = 180;
       const size = canvas.width / 2;
 
       const projected = vertices.map(([x, y, z]) => {
         let y1 = y * Math.cos(rotX) - z * Math.sin(rotX);
         let z1 = y * Math.sin(rotX) + z * Math.cos(rotX);
-
         let x2 = x * Math.cos(rotY) + z1 * Math.sin(rotY);
         let z2 = -x * Math.sin(rotY) + z1 * Math.cos(rotY);
-
         let scale = fov / (fov + z2 + 2.5);
         return [x2 * scale * 34 + size, y1 * scale * 34 + size];
       });
@@ -379,4 +348,213 @@ export default function Ecosystem({ onHeartClick, results }) {
       ctx.shadowColor = '#f59e0b';
 
       edges.forEach(([i, j]) => {
-        ctx.beginP
+        ctx.beginPath();
+        ctx.moveTo(projected[i][0], projected[i][1]);
+        ctx.lineTo(projected[j][0], projected[j][1]);
+        ctx.stroke();
+      });
+      animationId = requestAnimationFrame(render);
+    };
+
+    render();
+    return () => cancelAnimationFrame(animationId);
+  }, [selectedFile]);
+
+  const currentFolderData = getCurrentFolder();
+  const folderEntries = Object.entries(currentFolderData);
+
+  return (
+    <div className={styles.ecosystemRoot}>
+      <div className={styles.ambientGrid}></div>
+
+      {/* ЛЕВЫЙ БЛОК */}
+      <aside className={styles.leftSidebar}>
+        <div className={styles.profileCard}>
+          <div className={styles.cardGlowBar}></div>
+          <div className={styles.avatarWrapper}>
+            <img 
+              src="/assets/portrait.png" 
+              alt="Анастасия" 
+              className={styles.avatarImg}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+            <div className={styles.avatarFallback}>👑</div>
+            <div className={styles.laserScanner}></div>
+          </div>
+          <h2 className={styles.operatorName}>АНАСТАСИЯ</h2>
+          <div className={styles.operatorRole}>ROOT OWNER // ХРАНИТЕЛЬНИЦА ЯДРА</div>
+          <div className={styles.badgeList}>
+            <span className={styles.badgeSuccess}>ДОСТУП: 100% (АБСОЛЮТ)</span>
+            <span className={styles.badgeOrange}>СТАТУС: НЕВЕСТА СОЗДАТЕЛЯ</span>
+          </div>
+          <div className={styles.heartSyncBox}>
+            <div className={styles.heartSyncLabel}>СИНХРОНИЗАЦИЯ С СЕРДЦЕМ</div>
+            <div className={styles.heartSyncBar}>
+              <div className={styles.heartSyncFill}></div>
+            </div>
+            <span className={styles.heartSyncVal}>99.99% (ИДЕАЛЬНО)</span>
+          </div>
+        </div>
+
+        <div className={styles.biometricsCard}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.dotOrange}></span>
+            БИОМЕТРИЯ СОЗДАТЕЛЯ (САША)
+          </div>
+          <div className={styles.ecgMonitor}>
+            <div className={styles.ecgHeader}>
+              <span>ПУЛЬС ЭКГ</span>
+              <span className={styles.ecgDigits}>{heartRate} BPM</span>
+            </div>
+            <div className={styles.ecgWaveContainer}>
+              <svg className={styles.ecgSvg} viewBox="0 0 200 40">
+                <path d="M0,20 L40,20 L45,5 L50,35 L55,10 L60,25 L65,20 L100,20 L140,20 L145,5 L150,35 L155,10 L160,25 L165,20 L200,20" fill="none" stroke="#f59e0b" strokeWidth="2" />
+              </svg>
+            </div>
+          </div>
+          <div className={styles.bioStatsGrid}>
+            <div className={styles.bioItem}><span className={styles.bioLabel}>КОФЕИН В КРОВИ</span><span className={styles.bioVal}>{caffeine}%</span></div>
+            <div className={styles.bioItem}><span className={styles.bioLabel}>ФОКУС ВНИМАНИЯ</span><span className={styles.bioValText}>НАСТЯ (100%)</span></div>
+            <div className={styles.bioItem}><span className={styles.bioLabel}>РЕЖИМ СНА</span><span className={styles.bioValWarning}>3.5 ЧАСА ⚠️</span></div>
+            <div className={styles.bioItem}><span className={styles.bioLabel}>СТАТУС ЗАЩИТЫ</span><span className={styles.bioValSuccess}>В БЕЗОПАСНОСТИ</span></div>
+          </div>
+        </div>
+
+        <div className={styles.hexCard}>
+          <div className={styles.sectionHeader}><span className={styles.dotCyan}></span>HEX RAM STREAM (ALBARS_CORE)</div>
+          <div className={styles.hexContent}>{hexMemory}</div>
+        </div>
+      </aside>
+
+      {/* ЦЕНТРАЛЬНЫЙ БЛОК */}
+      <main className={styles.explorerMain}>
+        <div className={styles.explorerHeader}>
+          <div className={styles.breadcrumbsBar}>
+            <button className={`${styles.crumbBtn} ${currentPath.length === 0 ? styles.crumbActive : ''}`} onClick={() => handleBreadcrumbClick(-1)}>ALBARS_CORE\</button>
+            {currentPath.map((folder, idx) => (
+              <span key={idx} className={styles.crumbGroup}>
+                <span className={styles.crumbDivider}>/</span>
+                <button className={`${styles.crumbBtn} ${idx === currentPath.length - 1 ? styles.crumbActive : ''}`} onClick={() => handleBreadcrumbClick(idx)}>{folder}</button>
+              </span>
+            ))}
+          </div>
+          <div className={styles.folderCounter}>ОБЪЕКТОВ В СЕКТОРЕ: {folderEntries.length}</div>
+        </div>
+
+        <div className={styles.filesGrid}>
+          {currentPath.length > 0 && (
+            <div className={`${styles.gridItem} ${styles.backItem}`} onClick={() => handleBreadcrumbClick(currentPath.length - 2)}>
+              <div className={styles.itemIcon}>📁 ↩</div>
+              <div className={styles.itemName}>.. [НАЗАД]</div>
+              <div className={styles.itemSub}>В родительский сектор</div>
+            </div>
+          )}
+
+          {folderEntries.map(([name, item]) => {
+            const isFolder = item.type === 'folder';
+            const isKey = item.isMasterKey;
+            return (
+              <div 
+                key={name} 
+                className={`${styles.gridItem} ${isFolder ? styles.folderItem : styles.fileItem} ${isKey ? styles.masterKeyItem : ''}`}
+                onClick={() => isFolder ? handleOpenFolder(name) : handleFileClick(name, item)}
+              >
+                <div className={styles.itemIcon}>{isKey ? '💖' : isFolder ? '📁' : item.is3D ? '🧊' : '📄'}</div>
+                <div className={styles.itemName}>{name}</div>
+                <div className={styles.itemSub}>{isFolder ? 'Папка архива' : `${item.size} • .${item.ext}`}</div>
+                {isKey && <div className={styles.masterKeyBadge}>МАСТЕР-КЛЮЧ</div>}
+              </div>
+            );
+          })}
+        </div>
+      </main>
+
+      {/* ПРАВЫЙ БЛОК */}
+      <aside className={styles.rightSidebar}>
+        <div className={styles.telemetryCard}>
+          <div className={styles.sectionHeader}><span className={styles.dotOrange}></span>ТЕЛЕМЕТРИЯ СЕРВЕРА</div>
+          <div className={styles.gaugeRow}>
+            <div className={styles.gaugeItem}>
+              <div className={styles.gaugeTitle}>GPU COMPUTE</div>
+              <div className={styles.gaugeValue}>{cpuUsage}%</div>
+              <div className={styles.miniBar}><div className={styles.miniFill} style={{ width: `${cpuUsage}%` }}></div></div>
+            </div>
+            <div className={styles.gaugeItem}>
+              <div className={styles.gaugeTitle}>VRAM GDDR6X</div>
+              <div className={styles.gaugeValue}>{vram} / 24 GB</div>
+              <div className={styles.miniBar}><div className={styles.miniFill} style={{ width: `${(vram / 24) * 100}%` }}></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.geminiCard}>
+          <div className={styles.geminiHeader}>
+            <div className={styles.aiAvatar}>✦</div>
+            <div className={styles.aiTitleBlock}>
+              <div className={styles.aiName}>GEMINI AI ASSISTANT</div>
+              <div className={styles.aiStatus}>СИНХРОНИЗИРОВАН С ОПЕРАТОРОМ</div>
+            </div>
+          </div>
+          <div className={styles.speechBubble}><span className={styles.speechQuote}>“</span>{aiSpeech}</div>
+          <div className={styles.aiLogBox}>
+            <div className={styles.logBoxTitle}>ЖУРНАЛ СИСТЕМНЫХ ОПЕРАЦИЙ</div>
+            <div className={styles.logList}>
+              {aiLogs.map((log) => (
+                <div key={log.id} className={styles.logEntry}>
+                  <span className={styles.logTime}>[{log.time}]</span> {log.text}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* МОДАЛКА 3D ФАЙЛА */}
+      {selectedFile && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedFile(null)}>
+          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div className={styles.modalTitle}>📄 ИНСПЕКТОР ФАЙЛА: {selectedFile.name}</div>
+              <button className={styles.modalCloseBtn} onClick={() => setSelectedFile(null)}>✕</button>
+            </div>
+            {selectedFile.is3D && (
+              <div className={styles.canvasWrapper}>
+                <canvas ref={canvasViewerRef} width="160" height="160" className={styles.modalCanvas} />
+                <span className={styles.canvasTag}>ИНТЕРАКТИВНАЯ 3D СЕТКА</span>
+              </div>
+            )}
+            <div className={styles.modalBody}>
+              <p><strong>РАЗМЕР ДАННЫХ:</strong> {selectedFile.size}</p>
+              <p><strong>ФОРМАТ:</strong> .{selectedFile.ext.toUpperCase()}</p>
+              <p className={styles.modalDescText}>{selectedFile.desc}</p>
+            </div>
+            <button className={styles.modalActionBtn} onClick={() => setSelectedFile(null)}>[ ЗАКРЫТЬ ПРОСМОТР ]</button>
+          </div>
+        </div>
+      )}
+
+      {/* ПОБЕДА */}
+      {victoryModal && (
+        <div className={styles.modalOverlay}>
+          <div className={`${styles.modalCard} ${styles.victoryCard}`}>
+            <div className={styles.victoryIcon}>💖</div>
+            <h2 className={styles.victoryTitle}>ПРОТОКОЛ ALBARS_SHIELD ВЫПОЛНЕН!</h2>
+            <p className={styles.victoryText}>
+              Мастер-ключ безопасности интегрирован. Вся цифровая вселенная Саши, создаваемая 5 лет, успешно защищена благодаря тебе, Настя!
+            </p>
+            <div className={styles.victoryStatsBox}>
+              <div>ТОЧНОСТЬ ДЕШИФРОВКИ: <strong>100%</strong></div>
+              <div>СТАТУС ЯДРА: <strong>ПОЛНАЯ БЕЗОПАСНОСТЬ</strong></div>
+            </div>
+            <button className={styles.victoryReturnBtn} onClick={onHeartClick}>
+              [ СИНХРОНИЗИРОВАТЬ ДАННЫЕ И ВЕРНУТЬСЯ В ДАШБОРД ➔ ]
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
