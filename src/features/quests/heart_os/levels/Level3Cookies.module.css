@@ -1,69 +1,244 @@
-/* Level3Cookies.module.css */
-.container {
-  width: 100vw;
-  height: 100vh;
+.levelWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
+  padding: 20px;
+}
+
+.skipBtn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  color: #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+  z-index: 100;
+}
+
+.skipBtn:hover {
+  background: rgba(244, 63, 94, 0.2);
+  border-color: #f43f5e;
+  color: #fff;
+}
+
+.gdprModal {
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(244, 63, 94, 0.05);
+  backdrop-filter: blur(24px);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 560px;
+  padding: 28px;
+  box-sizing: border-box;
+  animation: fadeIn 0.5s ease;
+  transition: all 0.3s ease;
+}
+
+.modalSuccess {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 40px rgba(34, 197, 94, 0.35) !important;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.cookieIcon {
+  font-size: 2.2rem;
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.mainBtn {
-  padding: 20px 40px;
-  font-size: 1.5rem;
-  background: #00ff00;
-  color: #000;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: monospace;
-  transition: all 0.3s;
+.badgeStage {
+  font-size: 0.65rem;
+  color: #f43f5e;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
 
-.mainBtn:disabled {
-  background: #333;
-  color: #666;
-  cursor: not-allowed;
-}
-
-.popup {
-  position: absolute;
-  width: 300px;
-  background: #fff;
-  border: 2px solid #000;
-  box-shadow: 5px 5px 0px #00ff00;
-  z-index: 100;
-  color: #000;
-  font-family: sans-serif;
-}
-
-.popupHeader {
-  background: #000;
+.title {
+  margin: 2px 0 0 0;
+  font-size: 1.3rem;
   color: #fff;
-  padding: 5px 10px;
-  font-size: 0.8rem;
-  font-weight: bold;
+  font-weight: 600;
 }
 
-.popupBody {
-  padding: 15px;
-  text-align: center;
+.description {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin-bottom: 20px;
 }
 
-.btnGroup {
-  margin-top: 15px;
+.togglesList {
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 8px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
 }
 
-.acceptBtn {
-  background: #00ff00;
-  border: 1px solid #000;
-  padding: 5px 15px;
+.togglesList::-webkit-scrollbar {
+  width: 5px;
+}
+.togglesList::-webkit-scrollbar-thumb {
+  background: rgba(244, 63, 94, 0.4);
+  border-radius: 4px;
+}
+
+.toggleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggleRow:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.keyRow {
+  border-color: rgba(244, 63, 94, 0.4);
+  background: rgba(244, 63, 94, 0.05);
+}
+
+.toggleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.toggleLabel {
+  font-size: 0.8rem;
+  color: #e2e8f0;
+}
+
+.lockedBadge {
+  font-size: 0.65rem;
+  color: #64748b;
+}
+
+.targetBadge {
+  font-size: 0.65rem;
+  color: #f43f5e;
   font-weight: bold;
 }
 
-.acceptBtn:hover {
-  background: #00cc00;
+.switchTrack {
+  width: 40px;
+  height: 22px;
+  background: #334155;
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.switchThumb {
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.switchOn {
+  background: #f43f5e;
+}
+
+.switchOn .switchThumb {
+  transform: translateX(18px);
+}
+
+.errorMessage {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  font-size: 0.75rem;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  position: relative;
+}
+
+.acceptAllBtn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.1s linear;
+}
+
+.saveBtn {
+  flex: 1;
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  border: none;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+  transition: all 0.2s ease;
+}
+
+.saveBtn:hover {
+  box-shadow: 0 0 30px rgba(244, 63, 94, 0.7);
+  transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
 }
