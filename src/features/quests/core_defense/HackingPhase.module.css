@@ -1,35 +1,44 @@
 /* ===================================================
-   ЧАСТЬ 1: ФОН, СЕТКА, HUD ШАПКА, ТАЙМЕР И ПРОГРЕСС-БАР
+   ЧАСТЬ 1: ФОН, ОРАНЖЕВЫЙ КИБЕР-HUD, 3D И HEX-ПАМЯТЬ
    =================================================== */
 
 .viewport {
   width: 100vw;
   height: 100vh;
-  background-color: #030712;
-  color: #f8fafc;
+  height: 100dvh;
+  background-color: #070709;
+  background-image: 
+    radial-gradient(circle at 50% 15%, rgba(245, 158, 11, 0.12) 0%, transparent 65%),
+    radial-gradient(circle at 85% 85%, rgba(234, 88, 12, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #090807 0%, #040405 100%);
+  color: #fef3c7;
   font-family: 'JetBrains Mono', 'Courier New', monospace;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 24px 32px;
+  padding: 18px 26px;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
   user-select: none;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease;
 }
 
-/* Фоновая кибернетическая сетка и лучи */
-.gridBackground {
+/* Переворот на 180 градусов */
+.flippedScreen {
+  transform: rotate(180deg);
+}
+
+.gridOverlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(circle at 50% 30%, rgba(14, 165, 233, 0.1) 0%, transparent 65%),
-    linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
-  background-size: 100% 100%, 40px 40px, 40px 40px;
+    linear-gradient(rgba(245, 158, 11, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 158, 11, 0.035) 1px, transparent 1px);
+  background-size: 36px 36px;
   pointer-events: none;
   z-index: 1;
 }
@@ -40,17 +49,14 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    rgba(0, 0, 0, 0) 50%, 
-    rgba(0, 0, 0, 0.35) 50%
-  );
+  background: linear-gradient(rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
   background-size: 100% 4px;
   pointer-events: none;
   z-index: 20;
   opacity: 0.6;
 }
 
-.mobileHiddenInput {
+.hiddenMobileInput {
   position: absolute;
   opacity: 0;
   top: -1000px;
@@ -65,24 +71,47 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: rgba(18, 14, 11, 0.75);
+  border: 1px solid rgba(245, 158, 11, 0.25);
   border-radius: 12px;
-  padding: 12px 24px;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  padding: 10px 18px;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(245, 158, 11, 0.08);
+  gap: 12px;
 }
 
-.leftMeta {
+.hudLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.holoWidget {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+}
+
+.holoCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+.metaInfo {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
-.statusBadge {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #38bdf8;
+.badgeProtocol {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f59e0b;
   letter-spacing: 1.5px;
   display: flex;
   align-items: center;
@@ -92,81 +121,116 @@
 .pulseDot {
   width: 8px;
   height: 8px;
-  background-color: #38bdf8;
+  background-color: #f59e0b;
   border-radius: 50%;
-  box-shadow: 0 0 10px #38bdf8;
-  animation: dotBlink 1.5s infinite;
+  box-shadow: 0 0 10px #f59e0b;
+  animation: dotPulse 1.5s infinite;
 }
 
-@keyframes dotBlink {
+@keyframes dotPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.3; transform: scale(0.8); }
 }
 
-.tierIndicator {
-  font-size: 0.75rem;
-  color: #94a3b8;
+.badgeTier {
+  font-size: 0.72rem;
+  color: #a8a29e;
   letter-spacing: 1px;
 }
 
-.tierValue {
-  color: #fbbf24;
+.tierHighlight {
+  color: #ffedd5;
   font-weight: bold;
 }
 
-/* Центральный таймер */
-.centerTimer {
+/* Центральный интерактивный блок */
+.hudCenter {
   display: flex;
-  justify-content: center;
+  align-items: center;
+  gap: 16px;
 }
 
-.timerDisplay {
-  background: rgba(8, 12, 20, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  padding: 6px 20px;
+.hexBox {
+  background: rgba(10, 8, 6, 0.85);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 190px;
+}
+
+.hexHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+}
+
+.hexTitle { color: #78716c; }
+.hexStatus { color: #78716c; }
+.hexActive {
+  color: #f59e0b;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.hexText {
+  font-size: 0.72rem;
+  color: #fb923c;
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+
+/* Таймер */
+.timerCard {
+  background: rgba(12, 10, 8, 0.95);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  padding: 4px 18px;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.15);
   transition: all 0.3s;
 }
 
-.timerLabel {
-  font-size: 0.65rem;
-  color: #64748b;
-  letter-spacing: 1.5px;
+.timerSub {
+  font-size: 0.6rem;
+  color: #78716c;
+  letter-spacing: 1.2px;
 }
 
-.timerDigits {
-  font-size: 1.8rem;
+.timerTime {
+  font-size: 1.7rem;
   font-weight: 800;
-  color: #38bdf8;
+  color: #f59e0b;
   letter-spacing: 2px;
-  text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
 }
 
-.timerEmergency {
-  border-color: #f43f5e;
-  box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
-  animation: pulseEmergency 1s infinite;
+.timerWarning {
+  border-color: #ef4444;
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.45);
+  animation: timerAlert 1s infinite;
 }
 
-.timerEmergency .timerDigits {
-  color: #f43f5e;
-  text-shadow: 0 0 15px rgba(244, 63, 94, 0.8);
+.timerWarning .timerTime {
+  color: #ef4444;
+  text-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
 }
 
-@keyframes pulseEmergency {
+@keyframes timerAlert {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+  50% { transform: scale(1.04); }
 }
 
-/* Правая часть статистики */
-.rightStats {
+/* Статистика и Пропуск */
+.hudRight {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .statBox {
@@ -176,23 +240,23 @@
 }
 
 .statLabel {
-  font-size: 0.65rem;
-  color: #64748b;
+  font-size: 0.62rem;
+  color: #78716c;
   letter-spacing: 1px;
 }
 
-.statErrorValue {
-  font-size: 1.4rem;
+.statVal {
+  font-size: 1.35rem;
   font-weight: bold;
-  color: #f43f5e;
-  text-shadow: 0 0 8px rgba(244, 63, 94, 0.5);
+  color: #ef4444;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
 }
 
-.skipButton {
+.skipBtn {
   background: transparent;
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  padding: 8px 14px;
+  color: #a8a29e;
+  border: 1px solid rgba(168, 162, 158, 0.3);
+  padding: 8px 12px;
   border-radius: 6px;
   font-family: inherit;
   font-size: 0.75rem;
@@ -200,38 +264,38 @@
   transition: all 0.2s ease;
 }
 
-.skipButton:hover {
+.skipBtn:hover {
   color: #fff;
-  border-color: #38bdf8;
-  background: rgba(56, 189, 248, 0.1);
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.15);
 }
 
 /* Прогресс-бар */
-.progressBarWrapper {
+.progressBar {
   position: relative;
   z-index: 10;
-  height: 20px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(56, 189, 248, 0.15);
+  height: 18px;
+  background: rgba(20, 15, 12, 0.7);
+  border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 10px;
-  margin: 14px 0;
+  margin: 10px 0;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.progressBarFill {
+.progressFill {
   position: absolute;
   left: 0;
   top: 0;
   height: 100%;
-  background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+  background: linear-gradient(90deg, #d97706 0%, #f59e0b 50%, #fb923c 100%);
   border-radius: 10px;
-  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.progressGlowLight {
+.progressGlow {
   position: absolute;
   right: 0;
   top: 0;
@@ -239,100 +303,96 @@
   width: 15px;
   background: #ffffff;
   filter: blur(4px);
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
-.progressText {
+.progressValue {
   position: relative;
   z-index: 2;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: #ffffff;
   letter-spacing: 2px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 /* ===================================================
-   ЧАСТЬ 2: ТЕКСТОВАЯ МАТРИЦА, ТОСТЫ, АНИМАЦИИ И МОБИЛКИ
+   ЧАСТЬ 2: МАТРИЦА СЛОВ, ТОСТЫ, ЭФФЕКТЫ И МОБИЛЬНАЯ ВЕРСИЯ
    =================================================== */
 
-/* Плашка понижения сложности */
-.levelBanner {
+/* Баннер смены уровня */
+.bannerContainer {
   position: absolute;
-  top: 130px;
+  top: 110px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(244, 63, 94, 0.9);
+  background: rgba(239, 68, 68, 0.94);
   color: #fff;
   padding: 10px 24px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   letter-spacing: 2px;
-  box-shadow: 0 0 30px rgba(244, 63, 94, 0.6);
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.6);
   z-index: 50;
-  animation: bannerPop 0.4s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: bannerSlide 0.4s ease-out;
 }
 
-@keyframes bannerPop {
-  0% { transform: translate(-50%, -20px); opacity: 0; }
+.bannerIcon { font-size: 1.1rem; }
+
+@keyframes bannerSlide {
+  0% { transform: translate(-50%, -25px); opacity: 0; }
   100% { transform: translate(-50%, 0); opacity: 1; }
 }
 
-/* Единый HUD-виджет уведомлений */
-.hudNotificationToast {
+/* HUD Тост */
+.toastWidget {
   position: absolute;
-  top: 105px;
-  right: 32px;
-  width: 320px;
-  background: rgba(13, 20, 36, 0.92);
-  border: 1px solid rgba(244, 114, 182, 0.4);
+  top: 95px;
+  right: 26px;
+  width: 300px;
+  background: rgba(20, 14, 10, 0.95);
+  border: 1px solid rgba(245, 158, 11, 0.4);
   border-radius: 10px;
-  padding: 14px 18px;
-  box-shadow: 
-    0 15px 35px rgba(0, 0, 0, 0.6),
-    0 0 20px rgba(244, 114, 182, 0.2);
+  padding: 12px 16px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(245, 158, 11, 0.15);
   backdrop-filter: blur(20px);
   z-index: 40;
-  animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: toastPop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes toastSlideIn {
+@keyframes toastPop {
   from { opacity: 0; transform: translateY(-15px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.toastHeader {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.68rem;
+.toastHead {
+  font-size: 0.65rem;
   font-weight: 700;
-  color: #f472b6;
+  color: #f59e0b;
   letter-spacing: 1px;
-  margin-bottom: 8px;
-}
-
-.toastIcon {
-  font-size: 0.9rem;
+  margin-bottom: 6px;
 }
 
 .toastBody {
-  font-size: 0.88rem;
-  line-height: 1.45;
-  color: #fdf2f8;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: #ffedd5;
   font-weight: 500;
 }
 
-.toastLine {
+.toastBar {
   height: 2px;
   width: 100%;
-  background: linear-gradient(90deg, #f472b6, transparent);
-  margin-top: 10px;
+  background: linear-gradient(90deg, #f59e0b, transparent);
+  margin-top: 8px;
   border-radius: 1px;
 }
 
-/* Контейнер текста */
-.typingContainer {
+/* Область печати текста */
+.typingArea {
   flex: 1;
   position: relative;
   z-index: 10;
@@ -340,73 +400,74 @@
   align-items: center;
   justify-content: center;
   overflow-y: auto;
-  padding: 15px 0;
+  padding: 10px 0;
+  max-height: calc(100vh - 180px);
 }
 
-.terminalFrame {
+.matrixBox {
   width: 100%;
-  max-width: 1100px;
-  background: rgba(8, 12, 22, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  max-width: 1050px;
+  background: rgba(12, 9, 7, 0.75);
+  border: 1px solid rgba(245, 158, 11, 0.25);
   border-radius: 14px;
-  padding: 36px 44px;
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(12px);
+  padding: 28px 36px;
+  box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(14px);
 }
 
-.wordsMatrix {
+.textMatrix {
   display: flex;
   flex-wrap: wrap;
-  line-height: 2.2;
-  font-size: 1.7rem;
+  line-height: 2.1;
+  font-size: 1.6rem;
   letter-spacing: 1.5px;
   text-align: left;
 }
 
-.wordBlock {
+.word {
   display: inline-flex;
-  margin-right: 18px;
-  margin-bottom: 8px;
+  margin-right: 16px;
+  margin-bottom: 6px;
   padding: 0 4px;
   border-radius: 4px;
   transition: background-color 0.2s;
 }
 
-.wordActive {
-  background: rgba(56, 189, 248, 0.08);
-  border-bottom: 2px solid #38bdf8;
+.wordCurrent {
+  background: rgba(245, 158, 11, 0.1);
+  border-bottom: 2px solid #f59e0b;
 }
 
-.wordDone {
+.wordFinished {
   opacity: 0.9;
 }
 
 /* Состояния букв */
-.charSpan {
+.char {
   position: relative;
   transition: color 0.15s;
 }
 
-.charPending {
-  color: rgba(226, 232, 240, 0.35); /* Четко читаемый исходный текст */
+.charGhost {
+  color: rgba(254, 243, 199, 0.32); /* Полностью видимый базовый текст */
 }
 
-.charSuccess {
-  color: #4ade80;
-  text-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+.charDone {
+  color: #22c55e;
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
 }
 
-.charCurrentCaret {
-  color: #38bdf8;
-  text-shadow: 0 0 10px #38bdf8;
-  background: rgba(56, 189, 248, 0.25);
+.charCaret {
+  color: #f59e0b;
+  text-shadow: 0 0 10px #f59e0b;
+  background: rgba(245, 158, 11, 0.3);
   border-radius: 2px;
-  animation: pulseCaret 0.8s infinite;
+  animation: caretBlink 0.8s infinite;
 }
 
-@keyframes pulseCaret {
-  0%, 100% { background: rgba(56, 189, 248, 0.35); }
-  50% { background: rgba(56, 189, 248, 0.1); }
+@keyframes caretBlink {
+  0%, 100% { background: rgba(245, 158, 11, 0.4); }
+  50% { background: rgba(245, 158, 11, 0.1); }
 }
 
 /* Футер */
@@ -414,30 +475,38 @@
   position: relative;
   z-index: 10;
   text-align: center;
-  padding: 8px 0;
+  padding: 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.keyboardTip {
+.mobileFocusPrompt {
+  display: none;
   font-size: 0.75rem;
-  color: #64748b;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px dashed rgba(245, 158, 11, 0.4);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: center;
+}
+
+.footerHint {
+  font-size: 0.72rem;
+  color: #78716c;
   letter-spacing: 0.5px;
 }
 
-/* Эффекты ошибок и глитча */
-.screenErrorShake {
-  animation: shakeScreen 0.25s cubic-bezier(.36,.07,.19,.97) both;
-  background-color: #1a080c !important;
+/* Ошибки и глитч */
+.errorFlash {
+  background-color: #220a0a !important;
+  box-shadow: inset 0 0 100px rgba(239, 68, 68, 0.6);
 }
 
-@keyframes shakeScreen {
-  10%, 90% { transform: translate3d(-2px, 0, 0); }
-  20%, 80% { transform: translate3d(4px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-  40%, 60% { transform: translate3d(6px, 0, 0); }
-}
-
-.screenGlitch {
-  animation: glitchAnim 0.25s infinite;
+.glitchEffect {
+  animation: glitchAnim 0.2s infinite;
 }
 
 @keyframes glitchAnim {
@@ -449,49 +518,82 @@
   100% { transform: translate(0); }
 }
 
-/* Адаптивность для мобильных устройств */
+/* Адаптация под смартфоны и открытую виртуальную клавиатуру */
 @media (max-width: 768px) {
   .viewport {
-    padding: 12px 14px;
+    padding: 8px 10px;
+    justify-content: flex-start;
+    gap: 8px;
   }
 
   .hudHeader {
-    padding: 10px 14px;
+    padding: 6px 10px;
+    gap: 6px;
   }
 
-  .statusBadge {
-    font-size: 0.68rem;
+  .holoWidget {
+    width: 34px;
+    height: 34px;
   }
 
-  .tierIndicator {
-    font-size: 0.65rem;
+  .hexBox {
+    display: none; /* Скрываем второстепенный HEX на экранах телефонов */
   }
 
-  .timerDigits {
-    font-size: 1.3rem;
+  .badgeProtocol {
+    font-size: 0.64rem;
   }
 
-  .statErrorValue {
-    font-size: 1.1rem;
+  .badgeTier {
+    font-size: 0.6rem;
   }
 
-  .hudNotificationToast {
-    top: 70px;
-    right: 14px;
-    left: 14px;
+  .timerTime {
+    font-size: 1.25rem;
+  }
+
+  .timerCard {
+    padding: 2px 10px;
+  }
+
+  .statVal {
+    font-size: 1rem;
+  }
+
+  .toastWidget {
+    top: 65px;
+    right: 10px;
+    left: 10px;
     width: auto;
   }
 
-  .terminalFrame {
-    padding: 18px 16px;
+  .typingArea {
+    max-height: none;
+    flex: 1;
+    align-items: flex-start;
+    padding: 4px 0;
   }
 
-  .wordsMatrix {
-    font-size: 1.15rem;
-    line-height: 1.8;
+  .matrixBox {
+    padding: 14px 12px;
   }
 
-  .wordBlock {
-    margin-right: 8px;
+  .textMatrix {
+    font-size: 1.08rem;
+    line-height: 1.7;
+    letter-spacing: 0.8px;
+  }
+
+  .word {
+    margin-right: 7px;
+    margin-bottom: 4px;
+  }
+
+  .mobileFocusPrompt {
+    display: block; /* Показываем кнопку быстрого фокуса на телефоне */
+  }
+
+  .footerHint {
+    font-size: 0.65rem;
   }
 }
