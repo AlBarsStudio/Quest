@@ -1,128 +1,322 @@
-.introContainer {
+/* ОБЩИЙ КИНОТЕАТРАЛЬНЫЙ КОНТЕЙНЕР */
+.cinemaContainer {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #050505; /* Глубокий черный */
+  background-color: #030303;
+  color: #ffffff;
+  font-family: 'JetBrains Mono', 'Inter', -apple-system, monospace;
+  overflow: hidden;
+  z-index: 99999;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
-  font-family: 'Inter', sans-serif;
-  overflow: hidden;
-  z-index: 9999;
 }
 
-/* Кнопка старта (нужна для запуска звука) */
-.startButton {
-  padding: 15px 40px;
-  background: transparent;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  font-size: 1.2rem;
-  letter-spacing: 5px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.3s ease;
-}
-
-.startButton:hover {
-  border-color: #fff;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-}
-
-/* Общий класс для текста сцен */
-.sceneText {
+/* CANVAS ФОН */
+.canvasBackground {
   position: absolute;
-  font-size: 3.5vw;
-  font-weight: 300;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* КИНОРАМКИ (21:9 LETTERBOX BARS) */
+.letterboxTop,
+.letterboxBottom {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #000000;
+  z-index: 20;
+}
+.letterboxTop { top: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+.letterboxBottom { bottom: 0; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+
+/* SCANLINE FX */
+.scanlineOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* СТАРТОВЫЙ ШЛЮЗ */
+.gateWrapper {
+  position: relative;
+  z-index: 30;
   text-align: center;
-  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: gateFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Сцена 1 и 5: Киношное появление и растворение с наездом камеры */
-.fadeScale {
-  animation: fadeScaleAnim 4s ease-in-out forwards;
-}
-@keyframes fadeScaleAnim {
-  0% { opacity: 0; transform: scale(0.9); filter: blur(10px); }
-  20% { opacity: 1; filter: blur(0px); }
-  80% { opacity: 1; filter: blur(0px); }
-  100% { opacity: 0; transform: scale(1.1); filter: blur(10px); }
+@keyframes gateFadeIn {
+  from { opacity: 0; transform: scale(0.95) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* Сцена 2: Смазывание в сторону */
-.swipeOut {
-  animation: swipeOutAnim 3s ease-in-out forwards;
-}
-@keyframes swipeOutAnim {
-  0% { opacity: 0; transform: translateX(50px) skewX(-10deg); filter: blur(5px); }
-  20% { opacity: 1; transform: translateX(0) skewX(0); filter: blur(0); }
-  70% { opacity: 1; transform: translateX(0) skewX(0); filter: blur(0); }
-  100% { opacity: 0; transform: translateX(-150px) skewX(20deg); filter: blur(10px); }
-}
-
-/* Сцена 3: Фокус из размытия */
-.focusIn {
-  animation: focusInAnim 4s ease-in-out forwards;
-}
-@keyframes focusInAnim {
-  0% { opacity: 0; filter: blur(20px); transform: scale(1.05); }
-  30% { opacity: 1; filter: blur(0px); transform: scale(1); }
-  80% { opacity: 1; filter: blur(0px); transform: scale(1); }
-  100% { opacity: 0; filter: blur(10px); transform: scale(0.95); }
+.gateSystemBadge {
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  color: #4ade80;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(74, 222, 128, 0.05);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  padding: 6px 16px;
+  border-radius: 20px;
 }
 
-/* Сцена 4: Шутка падает и осыпается */
-.dropFall {
-  font-size: 2vw; /* Текст длинный, делаем чуть меньше */
-  font-weight: 400;
-  animation: dropFallAnim 5s ease-in-out forwards;
-}
-@keyframes dropFallAnim {
-  0% { opacity: 0; transform: translateY(-50px); }
-  15% { opacity: 1; transform: translateY(0); }
-  85% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(100px) rotate(2deg); filter: blur(5px); }
+.liveDot {
+  width: 6px;
+  height: 6px;
+  background-color: #4ade80;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #4ade80;
+  animation: liveBlink 1.5s infinite;
 }
 
-/* Сцена 6: Печатающая машинка для Анастасии */
-.typewriter {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 5vw;
-  color: #4ade80; /* Неоновый зеленый, как в терминале */
-  font-weight: bold;
+@keyframes liveBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.gateTitle {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300;
+  letter-spacing: 12px;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+  color: #ffffff;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.gateSubtitle {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  letter-spacing: 2px;
+  margin-bottom: 40px;
+}
+
+.initiateButton {
+  position: relative;
+  background: rgba(15, 23, 42, 0.6);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  padding: 18px 45px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
   overflow: hidden;
-  white-space: nowrap;
-  border-right: 4px solid #4ade80;
-  width: 0; /* Начало анимации */
-  animation: typing 1.5s steps(9, end) forwards, blink 0.75s step-end infinite;
-  /* Задержка перед исчезновением, чтобы текст повисел */
-  animation-delay: 0s, 0s;
+  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 30px rgba(74, 222, 128, 0.1);
+}
+
+.initiateButton:hover {
+  background: rgba(74, 222, 128, 0.15);
+  border-color: #4ade80;
+  box-shadow: 0 0 45px rgba(74, 222, 128, 0.3), inset 0 0 15px rgba(74, 222, 128, 0.2);
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+.buttonScanner {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.4), transparent);
+  animation: btnScan 3s infinite;
+}
+
+@keyframes btnScan {
+  0% { left: -100%; }
+  50%, 100% { left: 100%; }
+}
+
+/* СЦЕНЫ ТИТРОВ */
+.sceneContent {
+  position: relative;
+  z-index: 30;
+  max-width: 1000px;
+  width: 85%;
+  text-align: center;
+  padding: 0 20px;
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
+}
+
+.sceneContent.in {
   opacity: 1;
+  transform: scale(1) translateY(0);
+  filter: blur(0px);
 }
 
-@keyframes typing {
-  from { width: 0; }
-  to { width: 9ch; } /* 9ch = 9 символов слова Анастасия */
-}
-@keyframes blink {
-  50% { border-color: transparent; }
+.sceneContent.out {
+  opacity: 0;
+  transform: scale(1.04) translateY(-15px);
+  filter: blur(12px);
 }
 
-/* Сцена 7: Глитч */
-.glitch {
-  font-weight: bold;
-  font-size: 4vw;
-  color: #ff003c;
-  animation: glitchAnim 2.5s steps(1) forwards;
+.standardSceneWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 }
-@keyframes glitchAnim {
-  0% { opacity: 0; }
-  10% { opacity: 1; transform: translate(2px, -2px); }
-  15% { opacity: 1; transform: translate(-2px, 2px); }
-  20% { opacity: 0; }
-  25% { opacity: 1; transform: translate(5px, -5px); }
-  100% { opacity: 0; transform: scale(1.5); filter: blur(20px); }
+
+.primaryText {
+  font-size: clamp(1.4rem, 3.2vw, 2.5rem);
+  font-weight: 300;
+  letter-spacing: 6px;
+  line-height: 1.4;
+  margin: 0;
+  color: #ffffff;
+  text-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+}
+
+.secondaryText {
+  font-size: clamp(0.85rem, 1.6vw, 1.15rem);
+  font-weight: 400;
+  letter-spacing: 2px;
+  color: #94a3b8;
+  line-height: 1.6;
+  max-width: 750px;
+  margin: 0;
+}
+
+/* КУЛЬМИНАЦИЯ (АНАСТАСИЯ) */
+.heroineWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.heroinePreTitle {
+  font-size: 0.85rem;
+  letter-spacing: 6px;
+  color: #388bfd;
+  text-transform: uppercase;
+}
+
+.heroineName {
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: 16px;
+  margin: 0;
+  color: #4ade80;
+  text-shadow: 0 0 40px rgba(74, 222, 128, 0.8), 0 0 80px rgba(74, 222, 128, 0.4);
+  animation: heroPulse 2s infinite ease-in-out alternate;
+}
+
+@keyframes heroPulse {
+  from { transform: scale(1); filter: brightness(1); }
+  to { transform: scale(1.02); filter: brightness(1.2); }
+}
+
+.heroinePostTitle {
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+  color: #64748b;
+  border-top: 1px solid rgba(74, 222, 128, 0.2);
+  padding-top: 15px;
+}
+
+/* ПРОПУСК В ИГРОВОМ СТИЛЕ (НИЖНИЙ ПРАВЫЙ УГОЛ) */
+.skipContainer {
+  position: absolute;
+  bottom: 20px;
+  right: 25px;
+  z-index: 50;
+}
+
+.skipButton {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.skipKeyHint {
+  color: rgba(74, 222, 128, 0.5);
+  font-size: 0.7rem;
+}
+
+.skipButton:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.skipButton:hover .skipKeyHint {
+  color: #4ade80;
+}
+
+.skipArrows {
+  font-size: 0.9rem;
+  transition: transform 0.2s ease;
+}
+
+.skipButton:hover .skipArrows {
+  transform: translateX(3px);
+}
+
+/* ХАЙРЛАЙН ПРОГРЕСС-БАР */
+.timelineBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  z-index: 60;
+}
+
+.timelineFill {
+  height: 100%;
+  background: #4ade80;
+  box-shadow: 0 0 10px #4ade80;
+  transition: width 0.5s linear;
+}
+
+/* МОБИЛЬНАЯ ОПТИМИЗАЦИЯ */
+@media (max-width: 768px) {
+  .letterboxTop, .letterboxBottom { height: 35px; }
+  .gateTitle { letter-spacing: 6px; }
+  .heroineName { letter-spacing: 8px; }
+  .skipKeyHint { display: none; }
 }
