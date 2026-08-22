@@ -18,6 +18,10 @@ const anomalyImages = [
   imgPortrait   
 ];
 
+// КЛЮЧИ API
+const GROQ_API_KEY = "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";
+const OPENROUTER_API_KEY = "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";
+
 // 2. СИСТЕМНЫЕ ИНСТРУКЦИИ ДЛЯ ИИ НА КАЖДЫЙ ЭТАП
 const getDirectorPrompt = (phase) => {
   const prompts = [
@@ -36,6 +40,26 @@ const getDirectorPrompt = (phase) => {
     "Оцени её действия при стрессе. Признай их эффективность 99.8%. Осознай ошибку классификации: она не вирус, а Ядро системы и главный источник энергии. Сними блокировку. В КОНЦЕ СВОЕГО СООБЩЕНИЯ НАПИШИ ТОЧНО ЭТОТ КОД: [UNLOCK_CORE]"
   ];
   return prompts[phase] || "Поддерживай диалог в роли сухого ИИ.";
+};
+
+// 3. ЛОКАЛЬНАЯ АВАРИЙНАЯ ЗАГЛУШКА ПЕРЕПИСКИ
+const getFallbackResponse = (phase, text) => {
+  const fallbacks = [
+    "Данные получены. Однако логика чертежа нарушена. 'Зона для обнимашек' не имеет точных пространственных габаритов. Как вы планируете интегрировать данный объект в реальную среду без привязки к координатам?",
+    "Оценка тактической ценности: сомнительно. Перехожу к следующему файлу инвентаря: вместо бронеплит обнаружены элементы 'вкусняшка' и 'совместный вечер'. Обоснуйте их присутствие в слотах быстрого доступа.",
+    "Ответ нерационален с точки зрения энергозатрат. Следующий файл: устройство распыления (краскопульт), генерирующее частицы в форме сердец. Объясните причину распыления неструктурированных эмоций в рабочей директории.",
+    "Аргумент зафиксирован. Следующий аномальный файл: элемент питания, активирующийся от контакта двух рук. Биоэлектрическое сопротивление кожи снижает КПД до нуля. Каким образом это восполняет ресурсы Александра?",
+    "Анализ биометрии: 100% совпадение. Этот файл-портрет занимает 99% оперативной памяти создателя. Попытка компрессии выдает ошибку 'Ценность объекта слишком высока'. Назовите эксплойт, через который вы получили root-доступ к его алгоритмам принятия решений.",
+    "Введенные данные не поддаются технической классификации. Система определяет вас как ВИРУС, блокирующий 99% фонового внимания системы Александра. Запуск протокола карантина. Запрос: назовите ваш алгоритм действий, если у создателя обнаружена критическая ошибка в финальном билде, а датчик стресса показывает 95%.",
+    "Обработка сценария... Оценка действий при стрессе: 99.8% эффективности восстановления. Внимание: выявлена критическая ошибка классификации. Вы — не вирус. Статус обновлен: Ядро системы и главный источник энергии. Протоколы блокировки деактивируются. [UNLOCK_CORE]"
+  ];
+  
+  // Добавляем немного динамики, если ответ слишком короткий
+  let response = fallbacks[phase] || "Система дестабилизирована.";
+  if (text.length < 5 && phase < 6) {
+    response = "Объем вводных данных недостаточен для полноценного анализа, но протокол продолжается. " + response;
+  }
+  return response;
 };
 
 export default function NeuralSyncFlow({ onReturnToDashboard }) {
@@ -72,37 +96,76 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
 
     const directorInstruction = getDirectorPrompt(phase);
     const hiddenPrompt = `[СИСТЕМНАЯ ИНСТРУКЦИЯ (НЕ ПИШИ ОБ ЭТОМ В ОТВЕТЕ): ${directorInstruction}]\n\nОтвет пользователя: ${userText}`;
+    const systemInstructionContent = "Ты сухой, техничный ИИ-ассистент разработчика Александра. Ты общаешься с его девушкой Настей. Переводи эмоции в термины серверов. Твои ответы короткие, 2-4 предложения.";
 
-    try {
-      const apiKey = "AQ.Ab8RN6IXJX4XP_Iaqz0XXhdJeQnDc4tnuNwbJn0SGLT3firR9A";
-      
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey 
+    // API 1: Groq (Максимальная скорость)
+    const fetchGroq = async () => {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          systemInstruction: { 
-            parts: [{ text: "Ты сухой, техничный ИИ-ассистент разработчика Александра. Ты общаешься с его девушкой Настей. Переводи эмоции в термины серверов. Твои ответы короткие, 2-4 предложения." }] 
-          },
-          contents: [
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: systemInstructionContent },
             ...apiHistory,
-            { role: "user", parts: [{ text: hiddenPrompt }] }
+            { role: "user", content: hiddenPrompt }
           ]
         })
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error("Groq API недоступен");
       const data = await response.json();
-      let aiText = data.candidates[0].content.parts[0].text;
+      return data.choices[0].message.content;
+    };
+
+    // API 2: OpenRouter (Резервный канал)
+    const fetchOpenRouter = async () => {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": window.location.href,
+          "X-Title": "Quest for Anastasia"
+        },
+        body: JSON.stringify({
+          model: "meta-llama/llama-3-8b-instruct:free",
+          messages: [
+            { role: "system", content: systemInstructionContent },
+            ...apiHistory,
+            { role: "user", content: hiddenPrompt }
+          ]
+        })
+      });
+      if (!response.ok) throw new Error("OpenRouter API недоступен");
+      const data = await response.json();
+      return data.choices[0].message.content;
+    };
+
+    try {
+      let aiText = "";
+
+      try {
+        // Попытка 1: GROQ
+        aiText = await fetchGroq();
+      } catch (errorGroq) {
+        console.warn("Сбой Groq, переключение на OpenRouter...");
+        try {
+          // Попытка 2: OpenRouter
+          aiText = await fetchOpenRouter();
+        } catch (errorOpenRouter) {
+          console.warn("Сбой OpenRouter, запуск локального ядра...");
+          // Попытка 3: Локальная резервная логика
+          await new Promise(resolve => setTimeout(resolve, 1500)); // Имитация задержки
+          aiText = getFallbackResponse(phase, userText);
+        }
+      }
 
       // Проверка на финал
       if (aiText.includes('[UNLOCK_CORE]')) {
-        aiText = aiText.replace('[UNLOCK_CORE]', '');
+        aiText = aiText.replace('[UNLOCK_CORE]', '').trim();
         setTimeout(() => setIsUnlocked(true), 4500); 
       }
 
@@ -121,18 +184,18 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
 
       setApiHistory(prev => [
         ...prev,
-        { role: "user", parts: [{ text: userText }] },
-        { role: "model", parts: [{ text: aiText }] }
+        { role: "user", content: userText },
+        { role: "assistant", content: aiText }
       ]);
 
       setPhase(nextPhase);
 
     } catch (error) {
-      console.error("Ошибка API:", error);
+      console.error("Критическая ошибка:", error);
       setMessages(prev => [...prev, { 
         id: Date.now() + 1, 
         sender: 'ai', 
-        text: "ERR: Потеряно соединение с сервером когнитивных вычислений. Проверьте VPN или повторите запрос." 
+        text: "ERR: Глобальный сбой интерфейса." 
       }]);
     } finally {
       setIsTyping(false);
@@ -170,7 +233,7 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
       <div className={styles.chatHeader}>
         <div className={styles.headerTitle}>
           <span className={styles.aiStatusDot}></span>
-          Модуль Аналитики // Gemini AI Core
+          Модуль Аналитики // DeepSync AI Core
         </div>
         <button onClick={onReturnToDashboard} className={styles.closeBtn}>Закрыть сессию</button>
       </div>
@@ -224,4 +287,4 @@ export default function NeuralSyncFlow({ onReturnToDashboard }) {
       </div>
     </div>
   );
-}
+            }
