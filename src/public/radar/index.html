@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Радар</title>
+    <link rel="stylesheet" href="radar.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div id="start-screen">
+        <button id="start-btn">Активировать радар</button>
+        <p id="permission-status"></p>
+    </div>
+
+    <div id="radar-screen" class="hidden">
+        <div class="target-info">
+            <h2>Цель: <span id="distance">---</span> м</h2>
+        </div>
+        
+        <div class="compass-container">
+            <!-- Стрелка, которая будет крутиться -->
+            <div id="arrow">⬆</div>
+        </div>
+
+        <!-- Данные со спутника в реальном времени -->
+        <div class="satellite-data">
+            <h3>Данные со спутников:</h3>
+            <p>Широта: <span id="lat">---</span></p>
+            <p>Долгота: <span id="lon">---</span></p>
+            <p>Точность (погрешность): <span id="accuracy">---</span> м</p>
+            <p>Азимут цели: <span id="target-bearing">---</span>°</p>
+            <p>Компас телефона: <span id="phone-heading">---</span>°</p>
+        </div>
+    </div>
+
+    <script src="radar.js"></script>
+    <script>
+        // Регистрация Service Worker для работы без интернета
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Радар готов к работе оффлайн'))
+                .catch(err => console.error('Ошибка Service Worker:', err));
+        }
+    </script>
+</body>
+</html>
